@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "biber-drift"
+version = "0.1.0"
+description = "Measure temporal drift in register-level linguistic features (Biber, 1988) with kernel two-sample tests (MMD)."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Amr Gamea" }]
+keywords = ["biber", "register", "stylometry", "mmd", "corpus-linguistics", "llm"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "polars>=1.0",
+    "pyarrow>=14",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "seaborn>=0.13",
+    "spacy>=3.7",
+    "pybiber>=0.3.1",
+    "pyyaml>=6.0",
+    "tqdm>=4.65",
+    "requests>=2.31",
+    "beautifulsoup4>=4.12",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+
+[project.scripts]
+biber-drift = "biber_drift.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+biber_drift = ["features/data/*.csv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

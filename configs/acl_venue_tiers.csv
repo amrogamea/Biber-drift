@@ -1,0 +1,679 @@
+venue,count,tier
+Annual Meeting of the Association for Computational Linguistics,7329,A*
+Conference on Empirical Methods in Natural Language Processing,7010,A*
+North American Chapter of the Association for Computational Linguistics,3396,Conference
+International Workshop on Semantic Evaluation,2550,Workshop
+International Conference on Computational Linguistics,1743,Conference
+Conference of the European Chapter of the Association for Computational Linguistics,1528,Conference
+Findings,1509,Workshop
+International Conference on Language Resources and Evaluation,1230,Conference
+Conference on Computational Natural Language Learning,801,Conference
+Conference on Machine Translation,788,Conference
+SIGDIAL Conferences,601,Conference
+International Conference on Natural Language Generation,522,Conference
+Transactions of the Association for Computational Linguistics,388,Conference
+Workshop on Biomedical Natural Language Processing,334,Workshop
+International Conference on Computational Logic,316,Conference
+AACL,260,Conference
+Human Language Technology - The Baltic Perspectiv,193,Conference
+ARABICNLP,185,Conference
+International Workshop on Spoken Language Translation,181,Workshop
+BlackboxNLP Workshop on Analyzing and Interpreting Neural Networks for NLP,164,Workshop
+International Joint Conference on Natural Language Processing,164,Conference
+Clinical Natural Language Processing Workshop,163,Workshop
+Special Interest Group on Computational Morphology and Phonology Workshop,156,Workshop
+"Workshop on Computational Approaches to Subjectivity, Sentiment and Social Media Analysis",154,Workshop
+BioNLP@ACL,146,Workshop
+WNUT,145,Workshop
+STARSEM,140,Workshop
+International Workshop/Conference on Parsing Technologies,134,Workshop
+WMT@ACL,134,Workshop
+Workshop on Innovative Use of NLP for Building Educational Applications,126,Workshop
+Recent Advances in Natural Language Processing,125,Conference
+Global WordNet Conference,123,Conference
+Workshop on Representation Learning for NLP,123,Workshop
+BEA@NAACL-HLT,107,Workshop
+NLLP,104,Conference
+WASSA@EMNLP,103,Workshop
+LTEDI,102,Workshop
+SIGDIAL Workshop,99,Workshop
+Law,98,Workshop
+"Pacific Asia Conference on Language, Information and Computation",98,Conference
+DRAVIDIANLANGTECH,94,Workshop
+CASE,93,Workshop
+Workshop on Arabic Natural Language Processing,92,Workshop
+International Conference on Computational Semantics,91,Conference
+Rep4NLP@ACL,88,Workshop
+SDP,88,Conference
+WOAH,86,Workshop
+MRL,86,Workshop
+First Workshop on Insights from Negative Results in NLP,85,Workshop
+LAW@ACL,81,Workshop
+IEEE Games Entertainment Media Conference,81,Conference
+European Workshop on Natural Language Generation,80,Workshop
+SMM4H,79,Workshop
+NLP4CONVAI,78,Conference
+"Workshop on NLP for Similar Languages, Varieties and Dialects",77,Workshop
+AMERICASNLP,77,Workshop
+Workshop on Cognitive Modeling and Computational Linguistics,76,Workshop
+CODI,74,Conference
+LATECHCLFL,74,Conference
+arXiv.org,73,Conference
+Workshop on Argument Mining,72,Workshop
+NLP4DH,71,Workshop
+Workshop on Computational Linguistics and Clinical Psychology,71,Workshop
+SUSTAINLP,70,Workshop
+ICON,70,Conference
+BEA@ACL,68,Workshop
+EVAL4NLP,68,Workshop
+ECNLP,66,Conference
+SIGTYP,66,Workshop
+GEBNLP,64,Workshop
+Workshop on Computational Approaches to Historical Language Change,63,Workshop
+TRUSTNLP,61,Workshop
+WMT@EMNLP,60,Workshop
+HLT-NAACL 2003,60,Conference
+CLICIT,58,Conference
+FEVER,57,Workshop
+ArgMining@ACL,54,Workshop
+NLPCSS,52,Workshop
+Applied Natural Language Processing Conference,50,Conference
+FIGLANG,50,Workshop
+NUT@EMNLP,49,Workshop
+FINNLP,49,Conference
+Workshop on Asian Translation,49,Workshop
+BEA@EMNLP,49,Workshop
+Louhi@EMNLP,49,Workshop
+LaTeCH@ACL,48,Workshop
+BlackboxNLP@EMNLP,47,Workshop
+LORESMT,46,Conference
+BANGLALP,46,Workshop
+Nordic Conference of Computational Linguistics,45,Conference
+Workshop on Graph-based Methods for Natural Language Processing,45,Workshop
+CRAC,45,Workshop
+Workshop on Document-grounded Dialogue and Conversational Question Answering,44,Workshop
+NLPOSS,43,Conference
+MWE@EACL,43,Workshop
+Workshop on Chinese Language Processing,43,Workshop
+BioNLP@HLT-NAACL,42,Workshop
+European Association for Machine Translation Conferences/Workshops,42,Workshop
+International Workshop on Health Text Mining and Information Analysis,42,Workshop
+CLPsych@HLT-NAACL,40,Workshop
+CoNLL/LLL,39,Conference
+Workshop on Abusive Language Online,39,Workshop
+TEACHINGNLP,39,Conference
+NEWS@ACL,38,Workshop
+WMT@EACL,38,Workshop
+International Conference on Natural Language and Speech Processing,37,Conference
+NLP4PI,37,Workshop
+International Workshop on Natural Language Processing for Social Media,36,Workshop
+COMPUTEL,36,Workshop
+Information Retrieval with Asian Languages,35,Conference
+NEWS@IJCNLP,35,Workshop
+Machine Translation Summit,34,Conference
+PRIVATENLP,34,Workshop
+CodeSwitch@EMNLP,34,Workshop
+ParallelText@ACL,34,Workshop
+DiscoMT@EMNLP,33,Workshop
+WASSA@NAACL-HLT,33,Workshop
+WANLP@ACL 2019,33,Workshop
+CIPS-SIGHAN,32,Conference
+Workshop on Knowledge Extraction and Integration for Deep Learning Architectures; Deep Learning Inside Out,32,Workshop
+DASH,32,Workshop
+Australasian Language Technology Association Workshop,31,Workshop
+WIESP,31,Conference
+ALVR,31,Conference
+CoNLL Shared Task,31,Conference
+SEMITIC@ACL,31,Workshop
+ACL-PASCAL@ACL,31,Workshop
+CogALex@COLING,30,Workshop
+Conference of the Association for Machine Translation in the Americas,30,Conference
+NLP4CALL,30,Workshop
+China National Conference on Chinese Computational Linguistics,28,Conference
+GENBENCH,28,Workshop
+NEWSUM,28,Conference
+TSAR,28,Workshop
+LChange@ACL,28,Workshop
+VS@HLT-NAACL,28,Workshop
+SIGHAN@IJCNLP,28,Workshop
+Workshop on Neural Generation and Translation,28,Workshop
+Conference on Semantics in Text Processing,27,Conference
+RepL4NLP@ACL,27,Workshop
+DND,27,Conference
+ArgMining@EMNLP,26,Workshop
+Conference on Natural Language Processing,26,Conference
+ANLP@EMNLP,26,Workshop
+BlackboxNLP@ACL,25,Workshop
+FLP,25,Conference
+CALCS,25,Conference
+SPNLP,25,Conference
+RepEval@ACL,25,Workshop
+SMM4H@ACL,25,Workshop
+"Proceedings of the 16th Workshop on Computational Research in Phonetics, Phonology, and Morphology",25,Workshop
+FEVER@EMNLP,25,Workshop
+NLP-TEA@ACL,25,Workshop
+Workshop on Multiword Expressions,24,Workshop
+WMT@HLT-NAACL,24,Workshop
+ALR7@IJCNLP,24,Workshop
+Proceedings of the First Workshop on Gender Bias in Natural Language Processing,24,Workshop
+WINLP,24,Conference
+SCIL,24,Conference
+Workshop on Balto-Slavic Natural Language Processing,24,Workshop
+ML4AL,24,Conference
+NUSE,23,Conference
+NLP4IF,23,Conference
+CUSTOMNLP4U,23,Conference
+SWCN@EMNLP,23,Workshop
+BioNLP@NAACL-HLT,23,Workshop
+SEW@NAACL-HLT,23,Workshop
+Finite-State Methods and Natural Language Processing,22,Conference
+CLPsych@ACL,22,Workshop
+BioNLP@IJCNLP,22,Workshop
+LAW@NAACL-HLT,22,Workshop
+NUT@IJCNLP,22,Workshop
+EVENTS@HLP-NAACL,22,Workshop
+NMT@ACL,22,Workshop
+Proceedings of the Sixth Workshop on,22,Workshop
+SLPAT@Interspeech,21,Workshop
+Proceedings of the Sixth Workshop on Computational Linguistics and Clinical Psychology,21,Workshop
+CLfL@NAACL-HLT,21,Workshop
+VarDial@COLING,21,Workshop
+Mathematics of Language,21,Conference
+LAW@COLING,21,Workshop
+WASSA@ACL,21,Workshop
+UNIMPLICIT,20,Conference
+NLP4SCIENCE,20,Conference
+CLIMATENLP,20,Conference
+UNLP,20,Conference
+C3NLP,20,Conference
+WNU,20,Conference
+FIELDMATTERS,20,Conference
+Workshop on Deep Learning Approaches for Low-Resource Natural Language Processing,20,Workshop
+Proceedings of the First International Workshop on Designing Meaning Representations,20,Workshop
+HUMEVAL,20,Conference
+Proceedings of the Third Workshop on Abusive Language Online,20,Workshop
+SSST@HLT-NAACL,20,Workshop
+SMM4H@EMNLP,20,Workshop
+ANLP@ACL,20,Workshop
+VL@COLING,20,Workshop
+NLPMC,20,Conference
+WANLP@EACL,19,Workshop
+HCINLP,19,Conference
+CodeSwitch@ACL,19,Workshop
+NLPmJ@EMNLP,19,Workshop
+AKBC@NAACL-HLT,19,Workshop
+NLP-TEA@ACL/IJCNLP,19,Workshop
+UDW@EMNLP,18,Workshop
+NLRSE,18,Conference
+AUTOSIMTRANS,18,Conference
+CLPsych@NAACL-HTL,18,Workshop
+Fig-Lang@NAACL-HLT,18,Workshop
+HLT-NAACL 2009,18,Conference
+International Workshop on Treebanks and Linguistic Theories,18,Workshop
+NLP+CSS@EMNLP,18,Workshop
+BUCC@ACL/IJCNLP,18,Workshop
+ParallelTexts@NAACL-HLT,18,Workshop
+BSNLP@EACL,18,Workshop
+HLT-NAACL 2004,17,Conference
+TextGraphs@EMNLP,17,Workshop
+SSST@EMNLP,17,Workshop
+RAIL,17,Conference
+"Proceedings of the Fifth International Conference on Dependency Linguistics (Depling, SyntaxFest 2019)",16,Conference
+KNOWLLM,16,Conference
+NEJLT,16,Conference
+BSNLP@ACL,16,Workshop
+Proceedings of the Workshop on Cognitive Modeling and Computational Linguistics,16,Workshop
+Workshop on Machine Reading for Question Answering,16,Workshop
+Louhi@EACL,16,Workshop
+LG-LP@COLING,16,Workshop
+SIGHAN@COLING,16,Workshop
+Tag,16,Conference
+LaTeCH@EACL,16,Workshop
+WAC@ACL,15,Workshop
+"Proceedings of the 18th International Workshop on Treebanks and Linguistic Theories (TLT, SyntaxFest 2019)",15,Workshop
+Proceedings of the Workshop on Discourse Relation Parsing and Treebanking 2019,15,Workshop
+PEOPLES@NAACL-HTL,15,Workshop
+MWE@ACL,15,Workshop
+ArgMining@HLT-NAACL,15,Workshop
+NLPXML@EACL,15,Workshop
+NLPBA/BioNLP,15,Conference
+Speech-to-Speech Translation@ACL,15,Workshop
+LANGMOL,14,Conference
+Workshop on Cognitive Aspects of the Lexicon,14,Workshop
+NLPTEA,14,Conference
+UDW@SyntaxFest,14,Workshop
+Proceedings of the Fifth International Workshop on Computational Linguistics for Uralic Languages,14,Workshop
+NFiS@EMNLP,14,Workshop
+Proceedings of the First Workshop on NLP for Conversational AI,14,Workshop
+LaTeCH@NAACL-HLT,14,Workshop
+WebNLG,14,Conference
+VL@EMNLP,14,Workshop
+MWE@NAACL-HLT,14,Workshop
+HyTra@EACL,14,Workshop
+HaCaT@EACL,14,Workshop
+HLT-NAACL 2006,14,Conference
+TextGraphs@NAACL-HLT,14,Workshop
+NLP4MUSA,13,Conference
+UNCERTAINLP,13,Conference
+KALLM,13,Conference
+SIGUL,13,Conference
+PANDL,13,Conference
+SPLUROBONLP,13,Conference
+NLP4POSIMPACT,13,Conference
+OSACT,13,Conference
+Workshop on Spoken Language Technologies for Under-resourced Languages,13,Workshop
+VL@ACL,13,Workshop
+SPMRL@EMNLP,13,Workshop
+PITR@EACL,13,Workshop
+SENSEVAL,13,Conference
+SocialNLP@ACL,13,Workshop
+Proceedings of the 2nd Clinical Natural Language Processing Workshop,13,Workshop
+MWE-WN@ACL,13,Workshop
+ALW@ACL,12,Workshop
+PERSONALIZE,12,Conference
+CAWL,12,Conference
+BIGSCIENCE,12,Conference
+Journal for Language Technology and Computational Linguistics,12,Conference
+NLPPOWER,12,Conference
+MAIWORKSHOP,12,Workshop
+Proceedings of the Second Workshop on Storytelling,12,Workshop
+NLP+CSS@ACL,12,Workshop
+FCA@ACL,12,Workshop
+LSDSem@EACL,12,Workshop
+WSSANLP@COLING,12,Workshop
+DDMMT@ACL,12,Workshop
+EthNLP@EACL,12,Workshop
+BEA@NAACL,12,Workshop
+EWNLG@ACL,12,Workshop
+DM@EACL,12,Workshop
+SPNLP@EMNLP,12,Workshop
+NEWS@ACM,12,Workshop
+Proceedings of the Workshop on Methods for Optimizing and Evaluating Neural Language Generation,11,Workshop
+DSTC,11,Conference
+IN2WRITING,11,Conference
+SERETOD,11,Conference
+MIA,11,Conference
+CONSTRAINT,11,Conference
+ADAPTNLP,11,Conference
+"Workshop on Trolling, Aggression and Cyberbullying",11,Workshop
+ACL Workshop on Natural Language Processing in the Biomedical Domain,11,Workshop
+Proceedings of the Third Workshop on Natural Language Processing and Computational Social Science,11,Workshop
+SCAI@EMNLP,11,Workshop
+QA@ACL,11,Workshop
+BUCC@ACL,11,Workshop
+SSST@NAACL-HLT,11,Workshop
+OIAF4HLT@COLING,11,Workshop
+LTCSS@ACL,11,Workshop
+HTLKM@ACL,11,Workshop
+CALDPSEUDO,10,Conference
+Workshop on Speech and Language Processing for Assistive Technologies,10,Workshop
+DISRPT,10,Conference
+ECONLP,10,Conference
+IWCLUL,10,Conference
+"Proceedings of the First Workshop on Quantitative Syntax (Quasy, SyntaxFest 2019)",10,Workshop
+RoboNLP@ACL,10,Workshop
+RepEval@EMNLP,10,Workshop
+TextGraphs@ACL,10,Workshop
+CORBON@HLT-NAACL,10,Workshop
+LSDSem@EMNLP,10,Workshop
+EVENTS@ACL,10,Workshop
+TextInfer@ACL,10,Workshop
+SSST@ACL,10,Workshop
+SETQALNLP,10,Conference
+EMSEE@ACL,10,Workshop
+IWP@ACL,10,Workshop
+CMCL@NAACL-HLT,10,Workshop
+International Symposium on Algorithms,9,Conference
+NLPBT,9,Conference
+CHALLENGEHML,9,Conference
+NLP4PROG,9,Workshop
+SIGTURK,9,Conference
+UMIOS,9,Conference
+BIGPICTURE,9,Conference
+MATCHING,9,Conference
+Proceedings of the 3rd Workshop on Evaluating Vector Space Representations for,9,Workshop
+Proceedings of the Workshop on Extracting Structured Knowledge from Scientific Publications,9,Workshop
+Proceedings of the 16th Meeting on the Mathematics of Language,9,Conference
+CMCL@ACL,9,Workshop
+Proceedings of the Natural Legal Language Processing Workshop 2019,9,Workshop
+SIGMORPHON@ACL,9,Workshop
+HLT-NAACL 2007,9,Conference
+ALR@COLING,9,Workshop
+HyTra@ACL,9,Workshop
+LDL@IJCNLP,9,Workshop
+SCNLP@EMNLP 2017,9,Workshop
+DeepLo@ACL,9,Workshop
+CINLP,8,Conference
+SCICHAT,8,Conference
+SEALP,8,Conference
+EVONLP,8,Conference
+MATHNLP,8,Conference
+MMNLU,8,Conference
+EMOJI,8,Conference
+SUKI,8,Conference
+METANLP,8,Conference
+NLPXML@COLING,8,Workshop
+ECONLP@ACL,8,Workshop
+Workshop on Computational Creativity in Natural Language Generation,8,Workshop
+SocialNLP@EMNLP,8,Workshop
+SocialNLP@COLING,8,Workshop
+"Workshop on Language Technology for Cultural Heritage, Social Sciences, and Humanities",8,Workshop
+SEMITIC@EACL,8,Workshop
+"Proceedings of the IWCS 2019 Workshop on Computing Semantics with Types, Frames and Related Structures",8,Workshop
+HUCLLM,7,Conference
+WILDRE,7,Workshop
+CSRR,7,Conference
+SICON,7,Workshop
+NLPCOVID19,7,Conference
+KNOWLEDGENLP,7,Conference
+AIWOLFDIAL,7,Conference
+TEICAI,7,Conference
+LT4HALA,7,Conference
+DADC,7,Conference
+IWDP,7,Conference
+JEPTALNRECITAL,7,Conference
+LBLODMBS@IDMB,7,Workshop
+CF+CDPE@COLING,7,Workshop
+PWNLP@IJCNLP,7,Workshop
+SLPAT@NAACL-HLT,7,Workshop
+SWAIE@COLING,7,Workshop
+NER@ACL,7,Workshop
+Brazilian Symposium in Information and Human Language Technology,7,Conference
+Proceedings of the Second Workshop on Shortcomings in Vision and Language,7,Workshop
+SPLU,6,Conference
+ARTOFSAFETY,6,Conference
+International Conference on Algebraic and Logic Programming,6,Conference
+"Tsinghua Interdisciplinary Workshop on Logic, Language and Meaning",6,Workshop
+NLPERSPECTIVES,6,Conference
+DLG4NLP,6,Conference
+CLASP,6,Conference
+POLITICALNLP,6,Conference
+NALOMA,6,Conference
+NLP4HR,6,Conference
+INTERNLP,6,Conference
+Proceedings of the 13th International Conference on Computational Semantics - Student Papers,6,Conference
+CLfL@EACL,6,Workshop
+Proceedings of the Combined Workshop on Spatial Language Understanding (,6,Workshop
+NLPXML@ACL,6,Workshop
+International Conference on Inductive Logic Programming,6,Conference
+WaC@EACL,6,Workshop
+SIGMORPHON/SIGFSM,6,Conference
+SocialNLP@EACL,6,Workshop
+VL@EACL,6,Workshop
+MultiLing@EACL,6,Workshop
+IEEE/ACM International Conference on Human-Robot Interaction,6,Conference
+GITT,5,Conference
+FNP,5,Conference
+Workshop on Building and Using Comparable Corpora,5,Workshop
+SUMEVAL,5,Conference
+LNLS,5,Conference
+Swiss Text Analytics Conference,5,Conference
+SCALELLM,5,Conference
+ACM Cyber-Physical System Security Workshop,5,Workshop
+MOOMIN,5,Conference
+CL4HEALTH,5,Conference
+FUTURED,5,Conference
+VLSP,5,Conference
+NLI,5,Conference
+GERMEVAL,5,Conference
+Workshop on Interactive Natural Language Technology for Explainable Artificial Intelligence,5,Workshop
+SLPAT@ACL,5,Workshop
+Computational Linguistics,5,Conference
+Language Resources and Evaluation,5,Conference
+BMC Bioinformatics,5,Conference
+ROCLING/IJCLCLP,5,Conference
+MWE@IJCNLP,5,Workshop
+SPNLP@NAACL-HLT,5,Workshop
+Workshop on Continuous Vector Space Models and their Compositionality,5,Workshop
+VarDial@COLING 2018,5,Workshop
+"Proceedings of the Second Workshop on Computational Models of Reference, Anaphora and Coreference",5,Workshop
+The Language of Time - A Reader,5,Conference
+WNLP@ACL,5,Workshop
+CMCL@EACL,5,Workshop
+DISTCURATE,4,Conference
+SIGNLANG,4,Conference
+SEMSPACE,4,Conference
+MMSR,4,Conference
+Universal Dependencies Workshop,4,Workshop
+FL4NLP,4,Conference
+CXGSNLP,4,Conference
+WORDPLAY,4,Conference
+SPANLP,4,Conference
+Online World Conference on Soft Computing in Industrial Applications,4,Conference
+CONDA,4,Conference
+NLPAICS,4,Conference
+LANTERN,4,Conference
+DMR,4,Conference
+INTEXSEMPAR,4,Conference
+bioRxiv,4,Conference
+Proceedings of the Workshop on Deep Learning and Formal Languages: Building Bridges,4,Workshop
+Journal of Biomedical Semantics,4,Conference
+CVSC@EACL,4,Workshop
+NUT@COLING,4,Workshop
+SedMT@NAACL-HLT,4,Workshop
+CC-NLG@INLG,4,Workshop
+SocialNLP@NAACL,4,Workshop
+Proceedings of the 1st Workshop on Discourse Structure in Neural NLG,4,Workshop
+Proceedings of the Sixth Workshop on Natural Language and Computer Science,4,Workshop
+Proceedings of the First Workshop on Narrative Understanding,4,Workshop
+KNLP,4,Conference
+"Workshop on Computational Modeling of People's Opinions, Personality, and Emotions in Social Media",4,Workshop
+Proceedings of the conference. Association for Computational Linguistics. North American Chapter. Meeting,3,Conference
+MMNLG,3,Conference
+Games,3,Conference
+WIT,3,Conference
+Conference on Algebraic Informatics,3,Conference
+MOTRA,3,Conference
+EANCS,3,Conference
+Scandinavian Conference on AI,3,Conference
+LIFELONGNLP,3,Conference
+RELATIONS@IWCS,3,Workshop
+Proceedings of the Workshop on Deep Linguistic Processing - DeepLP '07,3,Workshop
+LaTeCH@COLING,3,Workshop
+"Proceedings of the 1st Workshop on Sense, Concept and Entity
+          Representations and their Applications",3,Workshop
+NLP-TEA@COLING,3,Workshop
+LT4DH@COLING,3,Workshop
+ExProM@ACL,3,Workshop
+Proceedings of the ACL 2003 workshop on Multilingual summarization and question answering  -,3,Workshop
+RAODMAP@COLING,3,Workshop
+Journal of Chinese Language and Computing,3,Conference
+TRAC@COLING 2018,3,Workshop
+National Conference on Social Media Processing,2,Conference
+PVLAM,2,Conference
+SLTAT,2,Conference
+BPPF,2,Conference
+TRITON,2,Conference
+EVALNLGEVAL,2,Conference
+QUASY,2,Conference
+EMNLP-IJCNLP,2,Conference
+CLSSTS,2,Conference
+CLIB,2,Conference
+AESPEN,2,Conference
+International Workshop Rumours and Deception Social Media,2,Workshop
+PARLACLARIN,2,Conference
+MULTI3GENERATION,2,Conference
+MMMPIE,2,Conference
+EURALI,2,Conference
+RAPID,2,Conference
+NLP4TIA,2,Conference
+NLINT,2,Conference
+Taiwan Conference on Computational Linguistics and Speech Processing,2,Conference
+READI,2,Conference
+PRACTICALD2T,2,Conference
+HTRES,2,Conference
+DELITE,2,Conference
+NEUSYMBRIDGE,2,Conference
+SAFETY4CONVAI,2,Conference
+International Conference on Computational Processing of the Portuguese Language,2,Conference
+IWLTP,2,Conference
+LAW-MWE-CxG@COLING,2,Workshop
+PSLT@MTSummit,2,Workshop
+Proceedings of the COLING Workshop on Synchronic and Diachronic Approaches to Analyzing Technical Language,2,Workshop
+Proceedings of the IWCS Shared Task on Semantic Parsing,2,Conference
+NAACL-ANLP 2000 Workshop on Embedded machine translation systems  -,2,Workshop
+COLING-02 on SEMANET building and using semantic networks -,2,Conference
+Proceedings of the Workshop on Multilingual Linguistic Ressources - MLR '04,2,Workshop
+Proceedings of the ACL-SIGLEX Workshop on Deep Lexical Acquisition - DeepLA '05,2,Workshop
+Proceedings of the Workshop on Multilingual Language Resources and Interoperability - MLRI '06,2,Workshop
+Proceedings of the Third Workshop on Issues in Teaching Computational Linguistics - TeachCL '08,2,Workshop
+Proceedings of the 2009 Workshop on Text and Citation Analysis for Scholarly Digital Libraries - NLPIR4DL '09,2,Workshop
+Proceedings of the First Workshop on Language Technologies for African Languages - AfLaT '09,2,Workshop
+GEometrical Models of Natural Language Semantics,2,Conference
+CVSM@ACL,2,Workshop
+"International Joint Conference on the Analysis of Images, Social Networks and Texts",2,Conference
+Proceedings of the Workshop on Grammar Engineering Across Frameworks - GEAF '08,2,Workshop
+Proceedings of the 2014 Workshop on the Use of Computational Methods in the Study of Endangered Languages,2,Workshop
+Proceedings of the Workshop on Stylistic Variation,2,Workshop
+Proceedings of the Second Workshop on Metaphor in NLP,2,Workshop
+Proceedings of the 1st Workshop on Automatic Text Adaptation (ATA),2,Workshop
+"Proceedings of the Fifteenth Workshop on Computational Research in Phonetics, Phonology, and Morphology",2,Workshop
+EthNLP@NAACL-HLT,2,Workshop
+SemDeep@COLING,2,Workshop
+SemDeep@IWCS,2,Workshop
+WAT@IJCNLP,2,Workshop
+Proceedings of the Workshop Computational Semantics Beyond Events and Roles,2,Workshop
+"Proceedings of the 2nd Workshop on the Use of Computational Methods
+          in the Study of Endangered Languages",2,Workshop
+PEOPLES@COLING,2,Workshop
+WAT@COLING,2,Workshop
+"Proceedings of the First Workshop on Computational Models of
+          Reference, Anaphora and Coreference",1,Workshop
+Proceedings of the Second Workshop on Subword/Character LEvel Models,1,Workshop
+IEEE/ACM Transactions on Audio Speech and Language Processing,1,Conference
+Proceedings of the Workshop on Generalization in the Age of Deep Learning,1,Workshop
+Proceedings of the Second Workshop on Stylistic Variation,1,Workshop
+Proceedings of the Workshop on Intelligent Interactive Systems and Language Generation (2IS&amp;NLG),1,Workshop
+ViGIL@NeurIPS,1,Workshop
+Proceedings of the 2018 EMNLP Workshop BlackboxNLP: Analyzing and Interpreting Neural Networks for NLP,1,Workshop
+Proceedings of the First Workshop on Storytelling,1,Workshop
+EMNLP-IJCNLP 2019,1,Conference
+PeerJ Preprints,1,Conference
+International Conference on Machine Learning,1,Conference
+NAACL-HLT,1,Conference
+Interspeech,1,Conference
+PostEditing@AMTA,1,Workshop
+"Proceedings of the Second Workshop on Computational Approaches to
+          Deception Detection",1,Workshop
+"Proceedings of the First International Workshop on Spatial Language
+          Understanding",1,Workshop
+Journal of Mathematical Sciences,1,Conference
+Joint Conference on Lexical and Computational Semantics,1,Conference
+"Proceedings of the First Workshop on Building Linguistically
+          Generalizable NLP Systems",1,Workshop
+NLP-TEA@IJCNLP,1,Workshop
+International journal of Web &amp; Semantic Technology,1,Conference
+UDW@NoDaLiDa,1,Workshop
+"Proceedings of the 2nd Workshop on Coreference Resolution Beyond
+          OntoNotes (CORBON 2017)",1,Workshop
+Proceedings of the Fourth BioASQ workshop,1,Workshop
+"Proceedings of the 7th Workshop on Cognitive Aspects of Computational
+          Language Learning",1,Workshop
+Proceedings of the Workshop on Multilingual and Cross­-lingual Methods in NLP,1,Workshop
+CL4LC@COLING 2016,1,Workshop
+Workshop on Autonomic Communication,1,Workshop
+"Proceedings of the Workshop on Uphill Battles in Language Processing:
+          Scaling Early Achievements to Robust Methods",1,Workshop
+ClinicalNLP@COLING 2016,1,Workshop
+SemDeep@IJCAI,1,Workshop
+HACKASHOP,1,Conference
+INTELLANG,1,Conference
+GWLL,1,Conference
+TDLE,1,Conference
+LEGAL,1,Conference
+CS4OA,1,Conference
+CONTENTS,1,Conference
+CROWDMT,1,Conference
+"International Conference on Language, Data, and Knowledge",1,Conference
+LIMO,1,Conference
+AT4SSL,1,Conference
+RESOURCEFUL,1,Conference
+CREATIVESUMM,1,Conference
+DCLRL,1,Conference
+TU,1,Conference
+SALLD,1,Conference
+CCGPK,1,Conference
+CLTW,1,Conference
+ECOMNLP,1,Conference
+NSURL,1,Conference
+SMILA,1,Conference
+MML,1,Conference
+IEEE Conference on Communications and Network Security,1,Conference
+International Conference on Automated Software Engineering,1,Conference
+Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing,1,Conference
+IJCLCLP,1,Conference
+PAIL,1,Conference
+COMPUTERM,1,Conference
+Multimedia tools and applications,1,Conference
+Passive and Active Network Measurement Conference,1,Conference
+Workshop on Software and Performance,1,Workshop
+MULTILINGUALBIO,1,Conference
+Symposium on the Theory of Computing,1,Conference
+IEEE Data Engineering Bulletin,1,Conference
+JOCCH,1,Conference
+International Joint Conference on Artificial Intelligence,1,Conference
+NTCIR Conference on Evaluation of Information Access Technologies,1,Conference
+Proceedings of the Workshop KRAQ'06 on Knowledge and Reasoning for Language Processing - KRAQ '06,1,Workshop
+Proceedings of the Workshop on Multilingual Question Answering - MLQA '06,1,Workshop
+Proceedings of the Workshop on Psychocomputational Models of Human Language Acquisition - PMHLA '05,1,Workshop
+Proceedings of the ACL Workshop on Feature Engineering for Machine Learning in Natural Language Processing - FeatureEng '05,1,Workshop
+Software,1,Conference
+Proceedings of the 2004 ACL Workshop on Discourse Annotation - DiscAnnotation '04,1,Workshop
+Proceedings of the HLT-NAACL Workshop on Computational Lexical Semantics - CLS '04,1,Workshop
+Proceedings of the Workshop on Enhancing and Using Electronic Dictionaries - ElectricDict '04,1,Workshop
+SENSEVAL@ACL,1,Workshop
+Proceedings of the Workshop on Interdisciplinary Approaches to Speech Indexing and Retrieval at HLT-NAACL 2004 - SpeechIR '04,1,Workshop
+Proceedings of the 2nd Workshop on Text Meaning and Interpretation - TextMean '04,1,Workshop
+Proceedings of the 3rd Workshop on RObust Methods in Analysis of Natural Language Data - ROMAND '04,1,Workshop
+ENLG@EACL,1,Workshop
+Natural Language Engineering,1,Conference
+Proceedings of the 2003 EACL Workshop on Morphological Processing of Slavic Languages - MorphSlav '03,1,Workshop
+Proceedings of the ACL 2015 Workshop on Novel Computational Approaches to Keyphrase Extraction,1,Workshop
+Adaptive Agents and Multi-Agent Systems,1,Conference
+"Proceedings of the ACL 2003 workshop on Multiword expressions analysis, acquisition and treatment -",1,Workshop
+COLING-02 on Grammar engineering and evaluation  -,1,Conference
+COLING-02 on Machine translation in Asia  -,1,Conference
+Proceedings of the ACL-02 Workshop on Effective tools and methodologies for teaching natural language processing and computational linguistics  -,1,Workshop
+Anuario del Seminario de Filología Vasca Julio de Urquijo,1,Conference
+Proceedings of the ACL-02 workshop on Unsupervised lexical acquisition  -,1,Workshop
+COLING-02 on COMPUTERM 2002 second international workshop on computational terminology -,1,Workshop
+Proceedings of the ACL 2001 Workshop on Human Language Technology and Knowledge Management  -,1,Workshop
+Information Processing & Management,1,Conference
+Proceedings of the workshop on Comparing corpora  -,1,Workshop
+ELSPS,1,Conference
+Proceedings of the second workshop on Chinese language processing held in conjunction with the 38th Annual Meeting of the Association for Computational Linguistics -,1,Workshop
+SAIC@COLING,1,Workshop
+Proceedings of the Workshop on Frontiers in Linguistically Annotated Corpora 2006 - LAC '06,1,Workshop
+Proceedings of the Workshop on Task-Focused Summarization and Question Answering - SumQA '06,1,Workshop
+IEEE International Symposium on Sustainable Systems and Technology,1,Conference
+SIGHAN@COLING/ACL,1,Workshop
+International Conference on Information Technology in Medicine and Education,1,Conference
+International Conference on Dependency Linguistics,1,Conference
+Deep Machine Translation Workshop,1,Workshop
+Proceedings of the Sixth Workshop on Cognitive Aspects of Computational Language Learning,1,Workshop
+Proceedings of the 5th Workshop on Language Analysis for Social Media (LASM),1,Workshop
+Proceedings of the 5th Workshop on Cognitive Aspects of Computational Language Learning (CogACLL),1,Workshop
+Proceedings of the EMNLP 2014 Workshop on Analysis of Large Scale Social Interaction in MOOCs,1,Workshop
+Proceedings of the ACL 2014 Workshop on Semantic Parsing,1,Workshop
+"Proceedings of the Workshop on Interactive Language Learning, Visualization, and Interfaces",1,Workshop
+BMC Medical Informatics and Decision Making,1,Conference
+SWAIE@RANLP,1,Workshop
+LPCI@IJCNLP,1,Workshop
+Journal of Language Modelling,1,Conference
+SMT@COLING,1,Workshop
+TSLP,1,Conference
+Journal of the Brazilian Computer Society,1,Conference
+Mturk@HLT-NAACL,1,Workshop
+"Proceedings of the Workshop on Software Engineering, Testing, and Quality Assurance for Natural Language Processing - SETQA-NLP '09",1,Workshop
+Proceedings of the Workshop on Unsupervised and Minimally Supervised Learning of Lexical Semantics - UMSLLS '09,1,Workshop
+Proceedings of the 2009 Workshop on Language Generation and Summarisation - UCNLG+Sum '09,1,Workshop
+Proceedings of the EACL 2009 Workshop on Computational Linguistic Aspects of Grammatical Inference - CLAGI '09,1,Workshop
+Cryptography and Lattices,1,Conference
+Proceedings of the Workshop on Human Judgements in Computational Linguistics - HumanJudge '08,1,Workshop
+Proceedings of the Fourth ACL-SIGSEM Workshop on Prepositions - SigSem '07,1,Workshop
+Proceedings of the Workshop on Computational Approaches to Figurative Language - FigLanguages '07,1,Workshop
+Proceedings of the International Workshop on Cross-Language Knowledge Induction - CrossLangInduction '06,1,Workshop
+Proceedings of the Third ACL-SIGSEM Workshop on Prepositions - Prepositions '06,1,Workshop
+Proceedings of the HLT-NAACL 2006 Workshop on Analyzing Conversations in Text and Speech - ACTS '09,1,Workshop
+de arte,1,Conference
+DETERMIT,1,Conference

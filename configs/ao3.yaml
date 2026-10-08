@@ -1,0 +1,73 @@
+# AO3 fan fiction: Biber-feature drift across publication years.
+# Every key can be overridden on the command line, e.g.  --set mmd.sample_size=300
+# Settings mirror the original ao3_analysis notebook.
+
+name: ao3                 # results go to <output_dir>/<name>/
+output_dir: outputs
+
+data:
+  dataset: ao3            # loader: one document per posted chapter
+  path: data/raw/ao3      # directory of CSVs written by `biber-drift acquire-ao3` (or one CSV)
+  years: {start: 2009, end: 2026}
+  loader:
+    language: English     # keep works in this language (null = all)
+    max_chars: 10000      # only the start of a chapter reaches the window; caps memory
+
+cleaning:
+  enabled: true
+  options: {}             # e.g. {disable: [markdown, urls_emoji]} to skip steps
+
+quality:                  # malformed-text diagnostics (reported, not dropped, by default)
+  enabled: true
+  thresholds:             # ~99th percentile on AO3: fan fiction uses curly quotes, dashes and
+    punct_per_word: 0.45  # accented names (non-ASCII) and more dialogue punctuation than papers;
+    nonascii_per_1k: 35   # metrics not listed keep the ACL-calibrated defaults
+    oov_share: 0.15
+  drop_flags: []          # e.g. [blob_chars, invisible_chars] to drop flagged chapters
+
+window:                   # first 400 words, extended to a sentence end, never past 440
+  enabled: true
+  target_words: 400
+  hard_cap: 440           # chapters with fewer than target_words words are dropped
+
+features:
+  spacy_model: en_core_web_trf  # the paper's tagger; ~3 windows/s on a laptop CPU, much faster on a CUDA GPU
+  batch_size: 50
+  n_process: 1
+  gpu: auto
+  exclude: [f_62_split_infinitive]
+
+analysis:
+  eras: [2009, 2019, 2024]      # key years for the feature-change comparison
+  group_column: null
+
+mmd:                      # pairwise MMD^2 between years, on fixed samples (as in the paper)
+  years: null             # null = every year in the corpus
+  sample_size: 600        # the paper's fixed-sample size; years with fewer chapters are skipped
+  subsample: representative     # closest Biber-dimension distributions of 1000 random draws
+  subsample_draws: 1000
+  bootstrap_resamples: 500
+  permutations: 1000
+  seed: 42
+
+stability:                # elbow plot: within-corpus MMD^2 vs sample size
+  groupings: [all]        # all = the whole corpus pooled, not split by year
+  sample_sizes: {start: 100, stop: 1000, step: 50}
+  resamples: 100
+  scaling: pooled         # the run's one scaler and sigma: same ruler as the comparisons (paper)
+  seed: 42
+
+dimensions:               # Biber (1988) dimensions, one violin per year
+  years: {start: 2009, end: 2024}
+  violin_by: year
+  standardization: biber1988    # Biber's 1988 norms, as the paper (scores on Biber's scale)
+  include_seem_appear: false    # the paper reports Dimensions 1-6
+
+feature_change:           # 2009 -> 2019 -> 2024, absolute / relative / combined
+  years: [2009, 2019, 2024]
+  absolute_weight: 0.5
+  relative_weight: 0.5
+
+variance:                 # total variance of standardised features (the paper's variance analysis)
+  enabled: true
+  resamples: 500          # resampled at mmd.sample_size documents per year

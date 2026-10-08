@@ -1,0 +1,79 @@
+# ACL Anthology papers (S2ORC): Biber-feature drift across years and venue tiers.
+# Every key can be overridden on the command line, e.g.  --set mmd.sample_size=300
+# Method follows Nieth et al. (2026); see the comments where the data force a difference.
+
+name: acl
+output_dir: outputs
+
+data:
+  dataset: acl            # loader: one document per paper
+  path: data/raw/acl      # Dataset_<year>.csv files from `biber-drift acquire-acl`, or one CSV
+  years: null             # null = every year
+  loader:
+    # One consistent slice of every paper. The paper uses introductions only; abstract +
+    # introduction keeps more early papers (median intro in 2000: 367 words) in the same register.
+    text_columns: [abstract, introduction]
+    venue_tiers: configs/acl_venue_tiers.csv   # reviewed venue -> tier table (A*/Conference/Workshop)
+
+cleaning:
+  enabled: true
+  options:
+    min_words: 200        # drop papers shorter than this after cleaning (the window then needs 400)
+
+quality:
+  enabled: true
+  drop_flags: []          # e.g. [blob_chars, invisible_chars, garble_per_1k]
+
+window:                   # equal-length texts, as in the paper: rates and the type/token
+  enabled: true           # ratio (f_43) are otherwise confounded with paper length
+  target_words: 400
+  hard_cap: 440           # papers with fewer than 400 words in abstract + introduction are dropped
+
+features:
+  spacy_model: en_core_web_trf    # the paper's tagger; ~3 windows/s on a laptop CPU, much faster on a CUDA GPU
+  batch_size: 50
+  n_process: 1
+  gpu: auto
+  exclude: []             # all 67 pybiber features, as in the paper's MMD
+
+analysis:
+  eras: [2000, 2019, 2024]        # pre-deep-learning / pre-LLM / post-LLM
+  group_column: venue_tier
+  group_order: [A*, Conference, Workshop]
+
+mmd:                      # fixed samples per cohort, observed MMD^2 on the full samples (paper)
+  years: null
+  # The paper uses 600, but after the window the year 2000 has only 277 papers; 250 keeps 2000
+  # and 2002-2009 and 2013-2024 (1999, 2001, 2010-2012, 2025 and 2026 have fewer and are skipped).
+  sample_size: 250
+  subsample: representative       # closest Biber-dimension distributions of 1000 random draws
+  subsample_draws: 1000
+  bootstrap_resamples: 500
+  permutations: 500
+  era_group_cohorts: true         # also compare the (era, tier) cohorts
+  # (era, tier) cohorts are much smaller (2000: A* 52, Conference 180, Workshop 13 papers).
+  era_group_sample_size: 50
+  seed: 0
+
+stability:
+  groupings: [group, era, era_group]
+  sample_sizes: {start: 50, stop: 1000, step: 50}
+  resamples: 100
+  scaling: pooled         # the run's one scaler and sigma: same ruler as the comparisons (paper)
+  seed: 0
+
+dimensions:
+  years: [2000, 2019, 2024]
+  violin_by: era
+  standardization: biber1988      # Biber's 1988 norms, as the paper (scores on Biber's scale)
+  include_seem_appear: false      # the paper reports Dimensions 1-6
+
+feature_change:
+  years: [2000, 2019, 2024]
+  by_group: true                  # also rank feature changes inside each venue tier
+  absolute_weight: 0.5
+  relative_weight: 0.5
+
+variance:                 # total variance of standardised features (the paper's variance analysis)
+  enabled: true
+  resamples: 500          # resampled at mmd.sample_size (years) / era_group_sample_size
