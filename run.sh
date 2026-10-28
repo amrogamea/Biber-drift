@@ -67,6 +67,12 @@ if [[ "$SKIP_INSTALL" != "1" ]]; then
     echo ">> $VENV_DIR uses a Python older than 3.10; recreating it with $PYTHON"
     rm -rf "$VENV_DIR"
   fi
+  # A venv is tied to the folder it was created in; after the project is moved it is rebuilt.
+  if [[ -f "$VENV_DIR/bin/activate" ]] && \
+     ! grep -qF "$(cd "$VENV_DIR" && pwd -P)" "$VENV_DIR/bin/activate"; then
+    echo ">> $VENV_DIR was created in another folder; recreating it"
+    rm -rf "$VENV_DIR"
+  fi
   if [[ ! -d "$VENV_DIR" ]]; then
     echo ">> Creating virtual environment in $VENV_DIR with $PYTHON ($("$PYTHON" --version 2>&1))"
     "$PYTHON" -m venv "$VENV_DIR"

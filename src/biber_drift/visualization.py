@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.ticker import MaxNLocator
 
 from .features.dimensions import DIMENSION_LABELS
 
@@ -52,14 +53,91 @@ def plot_mmd_heatmap(matrix: pd.DataFrame, title: str, annotate_up_to: int = 20)
     return fig
 
 
-def plot_feature_shifts(shifts: pd.DataFrame, cohort_a, cohort_b, top: int = 20) -> plt.Figure:
-    """Largest marginal Wasserstein distances between two cohorts."""
-    pair = shifts[(shifts["cohort_a"] == cohort_a) & (shifts["cohort_b"] == cohort_b)]
-    pair = pair.nlargest(top, "wasserstein_distance").sort_values("wasserstein_distance")
-    fig, ax = plt.subplots(figsize=(9, max(4, 0.4 * len(pair))))
-    ax.barh(pair["feature"], pair["wasserstein_distance"], color=COHORT_COLOR)
-    ax.set_xlabel("Marginal Wasserstein distance (standardised units)")
-    ax.set_title(f"Largest Biber-feature shifts: {cohort_a} to {cohort_b}")
+INCREASE_COLOR = "tab:blue"
+DECREASE_COLOR = "tab:orange"
+
+
+def plot_feature_shifts(shifts: pd.DataFrame, pairs: Sequence[tuple], top: int = 20) -> plt.Figure:
+    """Largest marginal Wasserstein distances, one panel per cohort pair (e.g. 2009->2019, 2019->2025).
+
+    The panels share the x axis, so the size of the shifts can be compared across steps; bar colour
+    shows whether the feature's mean went up or down.
+    """
+    fig, axes = plt.subplots(1, len(pairs), figsize=(6.5 * len(pairs), max(4, 0.4 * top)),
+                             sharex=True, squeeze=False)
+    for ax, (cohort_a, cohort_b) in zip(axes.flat, pairs):
+        pair = shifts[(shifts["cohort_a"] == cohort_a) & (shifts["cohort_b"] == cohort_b)]
+        pair = pair.nlargest(top, "wasserstein_distance").sort_values("wasserstein_distance")
+        colors = np.where(pair["mean_difference_b_minus_a"] >= 0, INCREASE_COLOR, DECREASE_COLOR)
+        ax.barh(pair["feature"], pair["wasserstein_distance"], color=colors)
+        ax.set_title(f"{cohort_a} → {cohort_b}")
+        ax.set_xlabel("Marginal Wasserstein distance (standardised units)")
+    handles = [plt.Rectangle((0, 0), 1, 1, color=INCREASE_COLOR), plt.Rectangle((0, 0), 1, 1, color=DECREASE_COLOR)]
+    fig.legend(handles, ["mean increased", "mean decreased"], loc="lower center", ncol=2, frameon=False,
+               bbox_to_anchor=(0.5, -0.02))
+    fig.suptitle("Largest Biber-feature shifts")
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
+    return fig
+
+
+def _its_fit(row: pd.Series, t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Fitted values and the pre-break trend continued (counterfactual) at times ``t`` since the break."""
+    trend = row["intercept"] + row["pre_slope"] * t
+    slope = 0.0 if pd.isna(row["slope_change"]) else row["slope_change"]
+    post = (t >= -1e-9).astype(float)
+    return trend + post * (row["level_change"] + slope * t), trend
+
+
+def plot_trend_level_changes(its: pd.DataFrame, top: int = 25) -> plt.Figure:
+    """Jump at the break beyond the pre-break trend, with its confidence interval, per feature."""
+    table = its[its["kind"] == "feature"]
+    table = table.reindex(table["level_t"].abs().nlargest(top).index).iloc[::-1]
+    significant = table["level_p_adjusted"] < 0.05
+    fig, ax = plt.subplots(figsize=(9, max(4, 0.35 * len(table))))
+    y = np.arange(len(table))
+    ax.errorbar(table["level_change"], y, xerr=[table["level_change"] - table["level_ci_lower"],
+                                                 table["level_ci_upper"] - table["level_change"]],
+                fmt="none", ecolor="0.6", elinewidth=1)
+    ax.scatter(table["level_change"][significant], y[significant.to_numpy()], color=COHORT_COLOR, zorder=3,
+               label="adjusted p < 0.05")
+    ax.scatter(table["level_change"][~significant], y[~significant.to_numpy()], facecolor="white",
+               edgecolor=COHORT_COLOR, zorder=3, label="not significant after adjustment")
+    ax.axvline(0, color="0.4", lw=0.8)
+    ax.set_yticks(y, table["series"])
+    ax.set_xlabel("Jump at the break beyond the pre-break trend (standard deviations)")
+    ax.set_title("Interrupted time series: largest level changes (95% intervals not adjusted)")
+    ax.legend(loc="lower right", fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
+def plot_trend_series(series: pd.DataFrame, its: pd.DataFrame, break_at: float, names: Sequence[str],
+                      title: str = "Interrupted time series", ncols: int = 4) -> plt.Figure:
+    """Per-period values with the fitted segmented trend and the pre-break trend continued (dashed)."""
+    rows = its.set_index("series")
+    names = [n for n in names if n in series.columns and n in rows.index]
+    nrows = int(np.ceil(len(names) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(4.5 * ncols, 3.3 * nrows), squeeze=False)
+    time = series["time"].to_numpy(dtype=float)
+    t = time - break_at
+    dense = len(series) > 40
+    for ax, name in zip(axes.flat, names):
+        ax.plot(time, series[name], "o", ms=2.5 if dense else 5, color="0.55", alpha=0.6 if dense else 1)
+        fitted, counterfactual = _its_fit(rows.loc[name], t)
+        before, after = t < -1e-9, t >= -1e-9
+        ax.plot(time[before], fitted[before], color=COHORT_COLOR, lw=2)
+        ax.plot(time[after], fitted[after], color=COHORT_COLOR, lw=2)
+        ax.plot(time[after], counterfactual[after], color=COHORT_COLOR, lw=1.5, ls="--")
+        ax.axvline(break_at, color=REFERENCE_COLOR, ls=":", lw=1.2)
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=5, integer=True))
+        row = rows.loc[name]
+        detail = f"jump {row['level_change']:+.2f} (adj. p {row['level_p_adjusted']:.3f})"
+        if pd.notna(row["slope_change"]):
+            detail += f", slope {row['slope_change']:+.2f}/yr"
+        ax.set_title(f"{name}\n{detail}", fontsize=9)
+    for ax in list(axes.flat)[len(names):]:
+        ax.axis("off")
+    fig.suptitle(f"{title}\n(solid: fitted; dashed: pre-break trend continued; dotted: break)")
     fig.tight_layout()
     return fig
 

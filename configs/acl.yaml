@@ -40,6 +40,7 @@ analysis:
   eras: [2000, 2019, 2024]        # pre-deep-learning / pre-LLM / post-LLM
   group_column: venue_tier
   group_order: [A*, Conference, Workshop]
+  p_adjust: fdr_bh                # multiple-testing correction for every family of tests
 
 mmd:                      # fixed samples per cohort, observed MMD^2 on the full samples (paper)
   years: null
@@ -77,3 +78,12 @@ feature_change:
 variance:                 # total variance of standardised features (the paper's variance analysis)
   enabled: true
   resamples: 500          # resampled at mmd.sample_size (years) / era_group_sample_size
+
+trend:                    # interrupted time series around ChatGPT (H1-H3)
+  enabled: true
+  time_unit: year
+  break_at: 2023          # first post-ChatGPT year (released Nov 2022)
+  # The deep-learning era only: 2010-2012 (< 50 papers) and 2025-2026 (< 40) are too thin, and the
+  # 2000s mix in OCR'd scans.
+  years: {start: 2013, end: 2024}
+  min_documents: 50

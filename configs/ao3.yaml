@@ -40,6 +40,7 @@ features:
 analysis:
   eras: [2009, 2019, 2024]      # key years for the feature-change comparison
   group_column: null
+  p_adjust: fdr_bh              # multiple-testing correction for every family of tests
 
 mmd:                      # pairwise MMD^2 between years, on fixed samples (as in the paper)
   years: null             # null = every year in the corpus
@@ -63,11 +64,19 @@ dimensions:               # Biber (1988) dimensions, one violin per year
   standardization: biber1988    # Biber's 1988 norms, as the paper (scores on Biber's scale)
   include_seem_appear: false    # the paper reports Dimensions 1-6
 
-feature_change:           # 2009 -> 2019 -> 2024, absolute / relative / combined
-  years: [2009, 2019, 2024]
+feature_change:           # 2009 -> 2019 -> 2025, absolute / relative / combined (+ feature-shift figure)
+  years: [2009, 2019, 2025]
   absolute_weight: 0.5
   relative_weight: 0.5
 
 variance:                 # total variance of standardised features (the paper's variance analysis)
   enabled: true
   resamples: 500          # resampled at mmd.sample_size documents per year
+
+trend:                    # interrupted time series around ChatGPT (H1-H3)
+  enabled: true
+  time_unit: month        # chapters carry their posting date
+  date_column: chapter_date
+  break_at: "2022-12"     # first month after ChatGPT's release (30 Nov 2022)
+  years: {start: 2009, end: 2026}
+  min_documents: 30

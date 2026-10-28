@@ -62,13 +62,14 @@ and much faster on a CUDA GPU (`features.gpu: auto` uses one when present). For 
              clean (cleaner)          (resumable cache)    sample-size stability
              quality diagnostics                           Biber dimensions
              400-word window                               feature-change ranking
+                                                           interrupted time series
 ```
 
 | stage | what happens | writes |
 |---|---|---|
 | `prepare` | Load the raw data into a `Corpus` (unique `doc_id`, `year`, `text`); apply the dataset's cleaning steps; compute malformed-text diagnostics; cut each text to the analysis window. | `corpus/` |
 | `features` | Tag every text with the 67 Biber features (pybiber + spaCy). Finished batches are cached, so an interrupted run resumes. | `features/` |
-| `analyze` | Pairwise MMD² between years (and era × group cohorts), the sample-size "elbow", Biber dimension scores, and the per-feature change ranking. | `results/` |
+| `analyze` | Pairwise MMD² between years (and era × group cohorts), the sample-size "elbow", Biber dimension scores, the per-feature change ranking, and interrupted time series. | `results/` |
 | `report` | Figures for all of the above. | `figures/` |
 
 Every stage reads its inputs from the run directory, so stages can be re-run independently.
@@ -130,8 +131,27 @@ The comparison follows Nieth et al. (2026):
   (raw rates would be dominated by nouns and prepositions), resampled at n.
 * **Biber dimensions** -- Biber (1988), Table 9 loadings; z-scores against the corpus or, as in the
   paper, against Biber's 1988 norms (`dimensions.standardization: biber1988`, Dimensions 1-6).
-* **Feature change** -- for key years (e.g. 2009 → 2019 → 2024) the absolute and relative change
-  of every feature, min-max scaled and combined into one ranking score.
+* **Feature change** -- for key years (`feature_change.years`, e.g. 2009 → 2019 → 2025) the
+  absolute and relative change of every feature, min-max scaled and combined into one ranking
+  score. `figures/feature_shifts_<years>.png` shows the largest per-feature shifts for each step and
+  the full span, on one scale, coloured by whether the feature's mean rose or fell.
+* **Multiple testing** -- every family of tests (all year pairs, all series of the interrupted time
+  series) gets adjusted p-values (`analysis.p_adjust`: Benjamini-Hochberg FDR by default, or Holm)
+  next to the raw ones, e.g. `p_adjusted` in `mmd_by_year_pairwise.csv`.
+
+Beyond the paper, one analysis tests *when* and *how* the style changed around a break
+(`trend.break_at`, e.g. ChatGPT's release):
+
+* **Interrupted time series** (`trend`) -- one series per standardised feature,
+  Biber dimension and the total variance: the mean per year, or per month for dated documents
+  (Newey-West errors). The segmented regression `y = b0 + b1·t + b2·post (+ b3·post·t)` gives the jump
+  at the break beyond the pre-break trend (`b2`) and the change of slope (`b3`, with ≥ 3 post-break
+  periods); placebo breaks inside the pre-break period show how often such a jump appears by chance.
+  `post_departure` (the mean gap between the fitted post-break line and the pre-break trend
+  continued) measures how much a series changed, jumps and bends alike.
+  `figures/trend_series_dimensions.png` shows total variance and all seven Biber dimensions;
+  `figures/trend_series_features.png` the `trend.feature_panels` (8) features with the largest
+  |`post_departure`|.
 
 ---
 
@@ -172,12 +192,13 @@ typo cannot silently fall back to a default. Any key can be overridden with
 | `quality` | `thresholds`, `min_vocab_docs`, `drop_flags` |
 | `window` | `enabled`, `target_words` (400), `hard_cap` (440) |
 | `features` | `spacy_model`, `batch_size`, `n_process`, `gpu` (`auto`/`require`/`off`), `exclude` |
-| `analysis` | `eras` (key years), `group_column` (e.g. `venue_tier`), `group_order` |
+| `analysis` | `eras` (key years), `group_column` (e.g. `venue_tier`), `group_order`, `p_adjust` (`fdr_bh`/`holm`/`none`) |
 | `mmd` | `years`, `sample_size`, `subsample` (`representative`/`random`), `subsample_draws`, `bootstrap_resamples`, `permutations`, `min_cohort_documents`, `era_group_cohorts`, `era_group_sample_size`, `seed` |
 | `stability` | `groupings` (`all`/`era`/`group`/`era_group`), `sample_sizes`, `resamples`, `scaling` (`pooled`: the run's ruler; `per_group`) |
 | `dimensions` | `years`, `violin_by` (`year`/`era`), `standardization` (`corpus`/`biber1988`), `include_seem_appear` |
 | `feature_change` | `years`, `by_group`, `absolute_weight`, `relative_weight` |
 | `variance` | `enabled`, `sample_size` (default: the MMD sample sizes), `resamples` |
+| `trend` | `enabled`, `time_unit` (`year`/`month`), `date_column`, `break_at` (`2023` or `"2022-12"`), `years`, `min_documents`, `series`, `include_seem_appear`, `feature_panels`, `hac_lags`, `min_segment` |
 
 Years can be written as a list (`[2009, 2019, 2024]`), a range (`{start: 2009, end: 2024}`) or a
 string (`"2009-2024"`). The fully resolved config is saved as `outputs/<name>/config.yaml`.
@@ -203,8 +224,10 @@ outputs/<name>/
 │   ├── variance.csv                     total variance of standardised features per cohort
 │   ├── sample_size_stability.csv
 │   ├── biber_dimensions.parquet         Biber dimension scores per document
-│   └── feature_change/<all|group=...>/  means, changes, scaled tables, combined scores
-└── figures/                             heatmaps, elbow plots, dimension violins, variance, diagnostics
+│   ├── feature_change/<all|group=...>/  means, changes, scaled tables, combined scores
+│   └── trend/                           series, its, its_placebos
+└── figures/                             heatmaps, elbow plots, dimension violins, variance, diagnostics,
+                                         interrupted time series
 ```
 
 ---

@@ -58,11 +58,14 @@ def test_ao3_pipeline_end_to_end(ao3_dir, tmp_path, fake_tagger):
         assert (root / "results" / name).exists(), name
     samples = pd.read_csv(root / "results" / "mmd_by_year_samples.csv")
     assert samples.groupby("cohort").size().eq(10).all()                  # fixed samples of n
+    pairwise = pd.read_csv(root / "results" / "mmd_by_year_pairwise.csv")
+    assert (pairwise["p_adjusted"] >= pairwise["permutation_p_value"]).all()   # FDR never lowers p
+    assert (root / "results" / "trend" / "its.csv").exists()               # 3 months: too few, no crash
     dims = pd.read_parquet(root / "results" / "biber_dimensions.parquet")
     assert [c for c in dims if c.startswith("Dim")][-1] == "Dim6_Online_Informational_Elaboration"
     figures = {p.name for p in (root / "figures").glob("*.png")}
     assert {"mmd_by_year_heatmap.png", "biber_dimensions_by_year.png", "quality_metrics.png",
-            "sample_size_stability_all.png", "feature_shifts_2015_2024.png", "variance_by_year.png"} <= figures
+            "sample_size_stability_all.png", "feature_shifts_2015_2019_2024.png", "variance_by_year.png"} <= figures
 
 
 def test_acl_pipeline_with_venue_tiers(acl_dir, tmp_path, fake_tagger):

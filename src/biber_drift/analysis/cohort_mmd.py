@@ -21,6 +21,7 @@ from tqdm import tqdm
 from ..config import MMDConfig
 from ..logging_utils import get_logger
 from .mmd import RBFKernelMMD, confidence_interval, standardize
+from .multiple_testing import adjust_pvalues
 from .reference import FeatureReference
 
 logger = get_logger(__name__)
@@ -37,7 +38,8 @@ class CohortMMDResult:
     """Everything a cohort comparison produces. Each table is saved as ``<prefix>_<table>.csv``."""
 
     pairwise: pd.DataFrame
-    """One row per cohort pair: observed MMD^2 on the fixed samples, bootstrap CI, p-value, effect."""
+    """One row per cohort pair: observed MMD^2 on the fixed samples, bootstrap CI, p-value (raw and
+    adjusted over all pairs), effect."""
     baselines: pd.DataFrame
     """One row per cohort: within-cohort MMD^2 at ``sample_size`` (needs 2 x sample_size docs)."""
     pooled_baseline: dict[str, float]
@@ -67,6 +69,7 @@ class CohortMMDResult:
                 "mmd2": row.observed_mmd2,
                 "ci": f"[{row.ci_lower:.4f}, {row.ci_upper:.4f}]",
                 "permutation_p_value": row.permutation_p_value,
+                "p_adjusted": row.p_adjusted,
                 "effect_vs_pooled_baseline": row.effect_vs_pooled_baseline,
                 "pooled_baseline_ci_upper": self.pooled_baseline.get("ci_upper", np.nan),
                 "above_pooled_baseline": row.observed_mmd2 > self.pooled_baseline.get("ci_upper", np.inf),
@@ -106,8 +109,9 @@ class CohortMMDAnalysis:
        ``2 x sample_size`` documents).
     """
 
-    def __init__(self, config: MMDConfig) -> None:
+    def __init__(self, config: MMDConfig, p_adjust: str = "fdr_bh") -> None:
         self.config = config
+        self.p_adjust = p_adjust
 
     def run(self, features: pd.DataFrame, labels: pd.Series, order: Sequence[Hashable] | None = None,
             dimension_scores: pd.DataFrame | None = None, with_feature_shifts: bool = True,
@@ -208,6 +212,8 @@ class CohortMMDAnalysis:
                     })
 
         pairwise = pd.DataFrame(pair_rows)
+        pairwise.insert(pairwise.columns.get_loc("permutation_p_value") + 1, "p_adjusted",
+                        adjust_pvalues(pairwise["permutation_p_value"], self.p_adjust))
         matrix = pd.DataFrame(0.0, index=names, columns=names)
         for row in pairwise.itertuples(index=False):
             matrix.loc[row.cohort_a, row.cohort_b] = row.observed_mmd2

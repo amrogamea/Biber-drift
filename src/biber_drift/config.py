@@ -162,9 +162,14 @@ class AnalysisConfig:
     group_column: str | None = None
     """Optional second factor, e.g. ``venue_tier`` for ACL."""
     group_order: list[str] | None = None
+    p_adjust: str = "fdr_bh"
+    """Multiple-testing correction for every family of tests (all year pairs, all features, all
+    series): ``fdr_bh`` (Benjamini-Hochberg), ``holm`` or ``none``."""
 
     def __post_init__(self) -> None:
         self.eras = parse_years(self.eras) or []
+        if self.p_adjust not in {"fdr_bh", "holm", "none"}:
+            raise ConfigError("analysis.p_adjust must be 'fdr_bh', 'holm' or 'none'")
 
 
 @dataclass
@@ -296,6 +301,48 @@ class FeatureChangeConfig:
 
 
 @dataclass
+class TrendConfig:
+    """Interrupted time series on per-period means (one series per standardised feature, Biber
+    dimension and the total variance)."""
+
+    enabled: bool = False
+    time_unit: str = "year"
+    """``year``, or ``month`` for dated documents (needs ``date_column``)."""
+    date_column: str | None = None
+    """Corpus column with each document's date, e.g. ``chapter_date`` for AO3."""
+    break_at: int | str = 2023
+    """First post-break period: a year (``2023``) or a month (``"2022-12"``, ChatGPT's release)."""
+    years: list[int] | None = None
+    """Years entering the series (``None`` = all)."""
+    min_documents: int = 50
+    """Periods with fewer documents are left out of the series."""
+    series: list[str] = field(default_factory=lambda: ["features", "dimensions", "total_variance"])
+    include_seem_appear: bool = True
+    """Also score Dimension 7 (SEEM / APPEAR) for the trend series; the dimension violins follow
+    ``dimensions.include_seem_appear``."""
+    feature_panels: int = 8
+    """Features in ``trend_series_features.png``: those with the largest |post_departure|."""
+    hac_lags: int | None = None
+    """Newey-West lags for the standard errors (default: 0 for years, 12 for months)."""
+    min_segment: int | None = None
+    """Periods required on each side of a placebo break (default: 2 years / 12 months)."""
+
+    def __post_init__(self) -> None:
+        self.years = parse_years(self.years)
+        if self.time_unit not in {"year", "month"}:
+            raise ConfigError("trend.time_unit must be 'year' or 'month'")
+        if self.time_unit == "month" and not self.date_column:
+            raise ConfigError("trend.time_unit: month needs trend.date_column")
+        if set(self.series) - {"features", "dimensions", "total_variance"}:
+            raise ConfigError("trend.series may hold 'features', 'dimensions' and 'total_variance'")
+        monthly = self.time_unit == "month"
+        if self.hac_lags is None:
+            self.hac_lags = 12 if monthly else 0
+        if self.min_segment is None:
+            self.min_segment = 12 if monthly else 2
+
+
+@dataclass
 class ProjectConfig:
     """Everything needed to run the pipeline once."""
 
@@ -312,6 +359,7 @@ class ProjectConfig:
     dimensions: DimensionConfig = field(default_factory=DimensionConfig)
     feature_change: FeatureChangeConfig = field(default_factory=FeatureChangeConfig)
     variance: VarianceConfig = field(default_factory=VarianceConfig)
+    trend: TrendConfig = field(default_factory=TrendConfig)
 
     def __post_init__(self) -> None:
         if self.feature_change.years is None:

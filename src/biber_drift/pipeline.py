@@ -17,7 +17,9 @@ import numpy as np
 import pandas as pd
 
 from .analysis import (
-    CohortMMDAnalysis, FeatureChangeAnalysis, FeatureReference, SampleSizeStability, VarianceAnalysis,
+    CohortMMDAnalysis, FeatureChangeAnalysis, FeatureReference, SampleSizeStability,
+    TrendAnalysis, VarianceAnalysis, break_time, document_times,
+    period_series,
 )
 from .config import ConfigError, ProjectConfig, save_config
 from .corpus import YEAR, Corpus
@@ -73,6 +75,24 @@ class RunPaths:
     @property
     def figures(self) -> Path:
         return self.root / "figures"
+
+
+def trend_panels(its: pd.DataFrame, n_features: int = 8) -> tuple[list[str], list[str]]:
+    """Panels of the two trend figures: total variance + every dimension (in order), and the
+    ``n_features`` features with the largest |post_departure| (|jump| for older result files)."""
+    diversity = list(its.loc[its["kind"] == "diversity", "series"]) + list(its.loc[its["kind"] == "dimension", "series"])
+    features = its[its["kind"] == "feature"]
+    size = features["post_departure"] if "post_departure" in features else features["level_change"]
+    ranked = features.loc[size.abs().sort_values(ascending=False).index, "series"]
+    return diversity, list(ranked.head(n_features))
+
+
+def _read_table(path: Path) -> pd.DataFrame:
+    """A results CSV, or an empty frame when it is missing or has no rows."""
+    try:
+        return pd.read_csv(path)
+    except (FileNotFoundError, pd.errors.EmptyDataError):
+        return pd.DataFrame()
 
 
 class Pipeline:
@@ -196,6 +216,8 @@ class Pipeline:
             self._analyze_feature_change(features, cohorts)
         if cfg.variance.enabled:
             self._analyze_variance(features, cohorts, reference)
+        if cfg.trend.enabled:
+            self._analyze_trend(features, corpus.documents.loc[features.values.index], reference)
 
     def _check_feature_model(self) -> None:
         """Refuse features tagged with a different spaCy model than the config names."""
@@ -245,7 +267,7 @@ class Pipeline:
         cfg = self.config
         years = cohorts[YEAR]
         keep = years.isin(cfg.mmd.years) if cfg.mmd.years else pd.Series(True, index=years.index)
-        analysis = CohortMMDAnalysis(cfg.mmd)
+        analysis = CohortMMDAnalysis(cfg.mmd, cfg.analysis.p_adjust)
         dims = self._sampling_dimensions(features)
         by_year = analysis.run(features.values.loc[keep], years.loc[keep], dimension_scores=dims,
                                reference=reference, pool=features.values)
@@ -255,7 +277,8 @@ class Pipeline:
             labels = cohorts[ERA_GROUP].dropna()
             order = [f"{era} - {group}" for era in cfg.analysis.eras for group in self._group_order(cohorts)]
             n = cfg.mmd.era_group_sample_size
-            era_group = CohortMMDAnalysis(dataclasses.replace(cfg.mmd, sample_size=n, min_cohort_documents=n))
+            era_group = CohortMMDAnalysis(dataclasses.replace(cfg.mmd, sample_size=n, min_cohort_documents=n),
+                                          cfg.analysis.p_adjust)
             result = era_group.run(features.values.loc[labels.index], labels, order=order,
                                    dimension_scores=dims, with_feature_shifts=False,
                                    reference=reference, pool=features.values)
@@ -341,6 +364,49 @@ class Pipeline:
             tables.append(analysis(cfg.mmd.era_group_sample_size).run(standardized, groups, "era_group"))
         pd.concat(tables, ignore_index=True).to_csv(self.paths.results / "variance.csv", index=False)
 
+    def _trend_times(self, documents: pd.DataFrame) -> tuple[pd.DataFrame, float]:
+        """Each document's period and time for the trend analysis, and the break time."""
+        cfg = self.config.trend
+        if cfg.years:
+            documents = documents[documents[YEAR].isin(cfg.years)]
+        if cfg.time_unit == "month" and cfg.date_column not in documents.columns:
+            raise ConfigError(f"trend.date_column '{cfg.date_column}' is not a corpus column")
+        return document_times(documents, cfg.time_unit, cfg.date_column), break_time(cfg.break_at, cfg.time_unit)
+
+    def _analyze_trend(self, features: FeatureMatrix, documents: pd.DataFrame,
+                       reference: FeatureReference) -> None:
+        cfg = self.config.trend
+        times, at = self._trend_times(documents)
+        standardized = reference.transform(features.values.loc[times.index])
+        values, kinds = [], {}
+        if "features" in cfg.series:
+            values.append(standardized)
+            kinds.update({column: "feature" for column in standardized.columns})
+        if "dimensions" in cfg.series:
+            try:
+                scorer = BiberDimensionScorer(self.config.dimensions.standardization, cfg.include_seem_appear)
+                dimensions = scorer.score(features.values.loc[times.index])
+                values.append(dimensions)
+                kinds.update({column: "dimension" for column in dimensions.columns})
+            except ValueError as exc:
+                logger.warning("Trend: dimension series skipped (%s)", exc)
+        if "total_variance" in cfg.series:
+            kinds["total_variance"] = "diversity"
+        table = period_series(pd.concat(values, axis=1) if values else pd.DataFrame(index=times.index),
+                              times, cfg.min_documents,
+                              standardized if "total_variance" in cfg.series else None)
+        analysis = TrendAnalysis(at, cfg.hac_lags, cfg.min_segment, self.config.mmd.confidence,
+                                 self.config.analysis.p_adjust)
+        result = analysis.run(table, kinds)
+        result.save(self.paths.results / "trend")
+        if result.its.empty:
+            logger.warning("Trend: %d %ss with >= %d documents are too few around break %s for an "
+                           "interrupted time series", len(table), cfg.time_unit, cfg.min_documents, cfg.break_at)
+        else:
+            logger.info("Trend: %d %ss, break %s; %d series, %d with an adjusted level-change p < 0.05",
+                        len(table), cfg.time_unit, cfg.break_at, len(result.its),
+                        int((result.its["level_p_adjusted"] < 0.05).sum()))
+
     # ------------------------------------------------------------------------------------
     # Stage 4: figures
     # ------------------------------------------------------------------------------------
@@ -373,9 +439,10 @@ class Pipeline:
                             figures / "mmd_by_year_heatmap.png")
             shifts = pd.read_csv(results / "mmd_by_year_feature_shifts.csv")
             if not shifts.empty:
-                first, last = int(matrix.index[0]), int(matrix.index[-1])
-                viz.save_figure(viz.plot_feature_shifts(shifts, first, last),
-                                figures / f"feature_shifts_{first}_{last}.png")
+                pairs = self._feature_shift_pairs(shifts, matrix)
+                years = list(dict.fromkeys(year for pair in pairs for year in pair))
+                viz.save_figure(viz.plot_feature_shifts(shifts, pairs),
+                                figures / f"feature_shifts_{'_'.join(map(str, years))}.png")
 
         era_group_path = results / "mmd_by_era_group_matrix.csv"
         if era_group_path.exists():
@@ -401,7 +468,40 @@ class Pipeline:
                 viz.save_figure(viz.plot_variance(sub, cfg.mmd.confidence,
                                                   f"{name}: total variance of standardised features ({grouping})"),
                                 figures / f"variance_by_{grouping}.png")
+
+        self._report_trend(viz)
         logger.info("Figures written to %s", figures)
+
+    def _report_trend(self, viz) -> None:
+        directory, figures = self.paths.results / "trend", self.paths.figures
+        its = _read_table(directory / "its.csv")
+        cfg = self.config.trend
+        at = break_time(cfg.break_at, cfg.time_unit)
+        if its.empty:
+            return
+        viz.save_figure(viz.plot_trend_level_changes(its), figures / "trend_level_changes.png")
+        series = _read_table(directory / "series.csv")
+        diversity, features = trend_panels(its, cfg.feature_panels)
+        if diversity:
+            viz.save_figure(viz.plot_trend_series(series, its, at, diversity,
+                                                  "Total variance and Biber dimensions"),
+                            figures / "trend_series_dimensions.png")
+        if features:
+            viz.save_figure(viz.plot_trend_series(
+                series, its, at, features,
+                f"Top {len(features)} features by departure from the pre-break trend (mean gap after the break, sd)"),
+                figures / "trend_series_features.png")
+
+    def _feature_shift_pairs(self, shifts: pd.DataFrame, matrix: pd.DataFrame) -> list[tuple[int, int]]:
+        """The ``feature_change`` key-year steps (e.g. 2009->2019, 2019->2025, then 2009->2025) that
+        the year MMD compared; without key years, the first and last compared year."""
+        years = self.config.feature_change.years or []
+        compared = set(zip(shifts["cohort_a"], shifts["cohort_b"]))
+        pairs = ([pair for pair in FeatureChangeAnalysis(years).comparisons.values() if pair in compared]
+                 if len(years) >= 2 else [])
+        if len(years) >= 2 and not pairs:
+            logger.warning("Key years %s are not among the MMD cohorts; plotting first vs last year", years)
+        return pairs or [(int(matrix.index[0]), int(matrix.index[-1]))]
 
     def _report_dimensions(self, scores: pd.DataFrame, viz) -> None:
         cfg = self.config
