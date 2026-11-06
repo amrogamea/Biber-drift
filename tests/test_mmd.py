@@ -4,8 +4,8 @@ import pytest
 from scipy.stats import wasserstein_distance
 
 from biber_drift.analysis import (
-    CohortMMDAnalysis, RBFKernelMMD, VarianceAnalysis, confidence_interval, median_heuristic,
-    permutation_p_value, rbf_mmd2, standardize, total_variance, within_group_baseline,
+    CohortMMDAnalysis, RBFKernelMMD, VarianceAnalysis, confidence_interval, median_heuristic, paired_kernel,
+    paired_mmd2, permutation_p_value, rbf_mmd2, standardize, total_variance, within_group_baseline,
 )
 from biber_drift.config import MMDConfig
 
@@ -78,6 +78,25 @@ def _cohorts(rng, sizes, shifts):
 def _config(**kwargs):
     defaults = dict(sample_size=20, bootstrap_resamples=20, permutations=20, subsample="random", seed=1)
     return MMDConfig(**{**defaults, **kwargs})
+
+
+def test_paired_mmd2_swaps_members_within_pairs(rng):
+    x = rng.normal(size=(30, 4))
+    y = x + rng.normal(0.5, 0.3, size=(30, 4))                       # every pair moved the same way
+    h = paired_kernel(x, y, 2.0)
+    assert h.mean() == pytest.approx(brute_force_mmd2(x, y, 2.0))
+    signs = rng.choice([-1.0, 1.0], size=30)                          # swap the pairs with sign -1
+    swapped = (signs < 0)[:, None]
+    assert signs @ h @ signs / 30 ** 2 == pytest.approx(rbf_mmd2(np.where(swapped, y, x), np.where(swapped, x, y), 2.0))
+
+    observed, null, boot = paired_mmd2(x, y, 2.0, 500, 200, rng)
+    assert observed == pytest.approx(rbf_mmd2(x, y, 2.0)) and np.mean(null >= observed) < 0.01
+    assert null.shape == (500,) and boot.shape == (200,) and np.isfinite(boot).all()
+    exchangeable = x + rng.choice([-1.0, 1.0], size=(30, 1)) * 0.5   # half the pairs one way, half the other
+    observed, null, _ = paired_mmd2(x, exchangeable, 2.0, 500, 10, rng)
+    assert 0.05 < np.mean(null >= observed)
+    observed, null, _ = paired_mmd2(x, x, 2.0, 20, 20, rng)
+    assert observed == 0 and np.allclose(null, 0)                    # identical pairs: nothing to swap
 
 
 def test_cohort_analysis_ranks_the_shifted_cohort_highest(rng):

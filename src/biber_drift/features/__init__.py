@@ -1,6 +1,6 @@
 """Biber feature extraction and dimension scores."""
 
-from .biber import BiberTagger, BiberTaggingError, FeatureMatrix
+from .biber import BiberTagger, BiberTaggingError, FeatureMatrix, mattr_by_document, moving_type_token_ratio
 from .dimensions import (
     BIBER_1988_LOADINGS, DIMENSION_LABELS, BiberDimensionScorer, load_biber1988_norms,
     load_paper_loadings,
@@ -8,5 +8,6 @@ from .dimensions import (
 
 __all__ = [
     "BIBER_1988_LOADINGS", "BiberDimensionScorer", "BiberTagger", "BiberTaggingError",
-    "DIMENSION_LABELS", "FeatureMatrix", "load_biber1988_norms", "load_paper_loadings",
+    "DIMENSION_LABELS", "FeatureMatrix", "load_biber1988_norms", "load_paper_loadings", "mattr_by_document",
+    "moving_type_token_ratio",
 ]

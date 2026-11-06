@@ -8,6 +8,8 @@ Conventions (identical to the reference implementation used in Nieth et al.):
 * the biased (V-statistic) estimator of MMD^2, which includes the kernel diagonal;
 * the within-group baseline draws two *disjoint* samples without replacement;
 * the bootstrap draws each sample *with* replacement.
+
+Paired samples (a text and its paraphrase) have their own null and bootstrap: :func:`paired_mmd2`.
 """
 
 from __future__ import annotations
@@ -24,13 +26,44 @@ def _squared_distances(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     )
 
 
+def rbf_kernel(a: np.ndarray, b: np.ndarray, sigma: float) -> np.ndarray:
+    """``k(a_i, b_j)`` for every pair of rows."""
+    return np.exp(-_squared_distances(a, b) / (2.0 * sigma * sigma))
+
+
 def rbf_mmd2(x: np.ndarray, y: np.ndarray, sigma: float) -> float:
     """Biased squared MMD between samples ``x`` and ``y`` with an RBF kernel."""
+    return float(rbf_kernel(x, x, sigma).mean() - 2.0 * rbf_kernel(x, y, sigma).mean()
+                 + rbf_kernel(y, y, sigma).mean())
 
-    def kernel(a: np.ndarray, b: np.ndarray) -> np.ndarray:
-        return np.exp(-_squared_distances(a, b) / (2.0 * sigma * sigma))
 
-    return float(kernel(x, x).mean() - 2.0 * kernel(x, y).mean() + kernel(y, y).mean())
+def paired_kernel(x: np.ndarray, y: np.ndarray, sigma: float) -> np.ndarray:
+    """``h_ij = k(x_i, x_j) + k(y_i, y_j) - k(x_i, y_j) - k(y_i, x_j)`` for paired rows of ``x`` and ``y``.
+
+    For equal sizes the biased MMD^2 is the mean of ``h``. Swapping ``x_i`` and ``y_i`` flips the sign
+    of row and column ``i`` (the diagonal stays), so every swap pattern ``s`` (+-1 per pair) gives
+    MMD^2 = ``s' h s / n^2`` without recomputing a kernel.
+    """
+    kxy = rbf_kernel(x, y, sigma)
+    return rbf_kernel(x, x, sigma) + rbf_kernel(y, y, sigma) - kxy - kxy.T
+
+
+def paired_mmd2(x: np.ndarray, y: np.ndarray, sigma: float, permutations: int, resamples: int,
+                rng: np.random.Generator) -> tuple[float, np.ndarray, np.ndarray]:
+    """MMD^2 between paired samples (row ``i`` of ``x`` and of ``y`` belong together, e.g. a text and
+    its paraphrase), its null and its bootstrap.
+
+    The null swaps the two members of each pair at random (they are exchangeable if the pairing
+    changes nothing); the bootstrap resamples pairs with replacement. Returns the observed value,
+    ``permutations`` null values and ``resamples`` bootstrap values.
+    """
+    n = len(x)
+    h = paired_kernel(x, y, sigma)
+    signs = rng.choice([-1.0, 1.0], size=(permutations, n))
+    counts = rng.multinomial(n, np.full(n, 1.0 / n), size=resamples).astype(float)
+    null = ((signs @ h) * signs).sum(axis=1) / n ** 2
+    boot = ((counts @ h) * counts).sum(axis=1) / n ** 2
+    return float(h.mean()), null, boot
 
 
 def median_heuristic(pooled: np.ndarray, rng: np.random.Generator, max_points: int = 5000) -> float:

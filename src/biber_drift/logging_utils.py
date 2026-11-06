@@ -7,8 +7,9 @@ import logging
 _FORMAT = "%(asctime)s | %(levelname)-7s | %(name)s | %(message)s"
 
 
-# Third-party loggers that are chatty at INFO (pybiber logs every batch, matplotlib every axis).
-_QUIET = ("pybiber", "matplotlib", "PIL", "urllib3")
+# Third-party loggers that are chatty at INFO (pybiber logs every batch, matplotlib every axis,
+# huggingface_hub's HTTP clients every request of a download).
+_QUIET = ("pybiber", "matplotlib", "PIL", "urllib3", "httpx", "httpx2", "httpcore")
 
 
 def configure_logging(level: str = "INFO") -> None:

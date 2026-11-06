@@ -300,6 +300,10 @@ class FeatureChangeConfig:
         self.years = parse_years(self.years)
 
 
+TIME_UNITS = ("year", "quarter", "month")
+PERIODS_PER_YEAR = {"year": 1, "quarter": 4, "month": 12}
+
+
 @dataclass
 class TrendConfig:
     """Interrupted time series on per-period means (one series per standardised feature, Biber
@@ -307,11 +311,12 @@ class TrendConfig:
 
     enabled: bool = False
     time_unit: str = "year"
-    """``year``, or ``month`` for dated documents (needs ``date_column``)."""
+    """``year``, or ``quarter`` / ``month`` for dated documents (needs ``date_column``)."""
     date_column: str | None = None
     """Corpus column with each document's date, e.g. ``chapter_date`` for AO3."""
     break_at: int | str = 2023
-    """First post-break period: a year (``2023``) or a month (``"2022-12"``, ChatGPT's release)."""
+    """First post-break period: a year (``2023``), a quarter (``"2023Q1"``) or a month (``"2022-12"``,
+    ChatGPT's release)."""
     years: list[int] | None = None
     """Years entering the series (``None`` = all)."""
     min_documents: int = 50
@@ -323,23 +328,24 @@ class TrendConfig:
     feature_panels: int = 8
     """Features in ``trend_series_features.png``: those with the largest |post_departure|."""
     hac_lags: int | None = None
-    """Newey-West lags for the standard errors (default: 0 for years, 12 for months)."""
+    """Newey-West lags for the standard errors (default: one year, i.e. 0 / 4 / 12 for years,
+    quarters, months)."""
     min_segment: int | None = None
-    """Periods required on each side of a placebo break (default: 2 years / 12 months)."""
+    """Periods required on each side of a placebo break (default: 2 years / 4 quarters / 12 months)."""
 
     def __post_init__(self) -> None:
         self.years = parse_years(self.years)
-        if self.time_unit not in {"year", "month"}:
-            raise ConfigError("trend.time_unit must be 'year' or 'month'")
-        if self.time_unit == "month" and not self.date_column:
-            raise ConfigError("trend.time_unit: month needs trend.date_column")
+        if self.time_unit not in TIME_UNITS:
+            raise ConfigError(f"trend.time_unit must be one of {list(TIME_UNITS)}")
+        if self.time_unit != "year" and not self.date_column:
+            raise ConfigError(f"trend.time_unit: {self.time_unit} needs trend.date_column")
         if set(self.series) - {"features", "dimensions", "total_variance"}:
             raise ConfigError("trend.series may hold 'features', 'dimensions' and 'total_variance'")
-        monthly = self.time_unit == "month"
+        dated = self.time_unit != "year"
         if self.hac_lags is None:
-            self.hac_lags = 12 if monthly else 0
+            self.hac_lags = PERIODS_PER_YEAR[self.time_unit] if dated else 0
         if self.min_segment is None:
-            self.min_segment = 12 if monthly else 2
+            self.min_segment = PERIODS_PER_YEAR[self.time_unit] if dated else 2
 
 
 @dataclass

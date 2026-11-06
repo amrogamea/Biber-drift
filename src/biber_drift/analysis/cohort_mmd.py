@@ -230,16 +230,25 @@ class CohortMMDAnalysis:
     def _fixed_sample(self, ids: pd.Index, n: int, rng: np.random.Generator,
                       dimension_scores: pd.DataFrame | None) -> pd.Index:
         """One fixed sample of ``n`` documents: representative (paper) or random."""
-        if len(ids) == n:
-            return ids
-        if self.config.subsample == "random" or dimension_scores is None:
-            return ids[rng.choice(len(ids), size=n, replace=False)]
+        scores = None if self.config.subsample == "random" else dimension_scores
+        return representative_sample(ids, n, rng, scores, self.config.subsample_draws)
 
-        full = dimension_scores.loc[ids].to_numpy(dtype=float)
-        best, best_score = None, np.inf
-        for _ in range(self.config.subsample_draws):
-            pick = rng.choice(len(ids), size=n, replace=False)
-            score = np.mean([wasserstein_distance(full[:, d], full[pick, d]) for d in range(full.shape[1])])
-            if score < best_score:
-                best, best_score = pick, score
-        return ids[best]
+
+def representative_sample(ids: pd.Index, n: int, rng: np.random.Generator, scores: pd.DataFrame | None,
+                          draws: int) -> pd.Index:
+    """``n`` of ``ids``: of ``draws`` random draws, the one whose ``scores`` (Biber dimensions) are
+    distributed most like those of all ``ids`` (mean Wasserstein distance), as the paper's
+    ``03_subsample_data.py`` does; without scores, a single random draw."""
+    if len(ids) == n:
+        return ids
+    if scores is None:
+        return ids[rng.choice(len(ids), size=n, replace=False)]
+
+    full = scores.loc[ids].to_numpy(dtype=float)
+    best, best_score = None, np.inf
+    for _ in range(draws):
+        pick = rng.choice(len(ids), size=n, replace=False)
+        score = np.mean([wasserstein_distance(full[:, d], full[pick, d]) for d in range(full.shape[1])])
+        if score < best_score:
+            best, best_score = pick, score
+    return ids[best]

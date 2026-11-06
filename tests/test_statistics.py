@@ -32,6 +32,19 @@ def test_break_time_and_document_times():
     assert list(document_times(docs, "year")["time"]) == [2022.0, 2023.0]
 
 
+def test_quarters():
+    assert break_time("2023Q1", "quarter") == 2023.0
+    assert break_time("2022-q4", "quarter") == pytest.approx(2022.75)
+    with pytest.raises(ValueError, match="2023Q1"):
+        break_time("2023-01", "quarter")
+    docs = pd.DataFrame({"date": ["2022-12-31", "2023-01-01", "2023-06-30"]})
+    quarters = document_times(docs, "quarter", "date")
+    assert list(quarters["period"]) == ["2022Q4", "2023Q1", "2023Q2"]
+    np.testing.assert_allclose(quarters["time"], [2022.75, 2023.0, 2023.25])
+    quarterly = TrendConfig(time_unit="quarter", date_column="chapter_date", break_at="2023Q1")
+    assert (quarterly.hac_lags, quarterly.min_segment) == (4, 4)
+
+
 def test_period_series_means_counts_and_total_variance():
     times = pd.DataFrame({"period": ["a", "a", "b", "b", "b"], "time": [1.0, 1.0, 2.0, 2.0, 2.0]})
     values = pd.DataFrame({"x": [1.0, 3.0, 0.0, 0.0, 3.0]})
