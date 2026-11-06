@@ -1,0 +1,148 @@
+# Paraphrase test: do open LLMs change post-2023 texts less than older ones?
+# Every key can be overridden on the command line, e.g.  --set generation.temperature=0.7
+#
+#   laptop:          biber-drift paraphrase sample                      -> outputs/paraphrase/sample.parquet
+#   HPC login node:  biber-drift paraphrase download                    -> model weights in $HF_HOME
+#   HPC GPU job:     biber-drift paraphrase generate --model <key or index> [--stage pilot]
+#                                                       -> outputs/paraphrase/generations/<stage>/<model>.jsonl
+# The HPC steps are described in hpc/README.md.
+
+name: paraphrase          # outputs go to <output_dir>/<name>/
+output_dir: outputs
+
+sample:                   # the same texts for every model; reads the prepared runs outputs/acl and outputs/ao3
+  seed: 0
+  groups:
+    acl:
+      run: acl
+      years: {start: 2013, end: 2024}   # 2010-2012 are too thin; 2013 has only 257 papers, all taken
+      per_year: 500
+      stratify: venue_tier              # same A* / Conference / Workshop mix every year (pooled shares)
+    lotr:
+      run: ao3
+      years: {start: 2009, end: 2026}
+      per_year: 300
+      where:
+        canon: [lotr]                   # every fandom tag from The Lord of the Rings (no crossovers or spin-offs)
+        rating: [General Audiences, Teen And Up Audiences]   # instruct models may refuse explicit chapters
+      stratify: rating
+      spread_over: work_id              # as many different works as possible,
+      max_per_spread: 5                 # and at most 5 chapters of one work a year
+    hobbit:
+      run: ao3
+      years: {start: 2013, end: 2026}   # Hobbit chapters are rare before the films (2012)
+      per_year: 300
+      where:
+        canon: [hobbit]
+        rating: [General Audiences, Teen And Up Audiences]
+      stratify: rating
+      spread_over: work_id
+      max_per_spread: 5
+  pilot:                  # tried with every model before the main run
+    per_year: 50          # per corpus and year, split evenly over its groups
+    years:
+      acl: [2019, 2021, 2023, 2024]
+      ao3: [2019, 2021, 2024, 2025]
+
+generation:               # identical for every model
+  prompt: >-              # see DEFAULT_PROMPT in paraphrase/config.py for why it reads so (smoke tests 1-2)
+    Paraphrase the following text in your own words. Keep its meaning, register and length:
+    do not shorten, summarise or leave anything out. Return only the paraphrased text.
+  temperature: 0.0        # greedy: each model's most likely rewrite, reproducible
+  max_new_tokens: 1200    # about twice the longest window
+  seed: 0
+  max_model_len: 4096     # prompt (~700 tokens) + new tokens; OLMo 2 and Llama 2 allow 4096
+  gpu_memory_utilization: 0.9
+  chunk_size: 1000        # texts per vLLM call; finished chunks are saved, so a stopped job resumes
+
+check:                    # `biber-drift paraphrase check`: counts only; the rules are in `filters`
+  head_chars: 300         # refusals are looked for at the start of an output only
+  loop_ngram: 8           # an output loops when one 8-word sequence occurs 3 or more times
+  loop_repeats: 3         #   (and more often than in its original)
+  short_ratio: 0.5        # provisional length bands, output words / original words
+  long_ratio: 1.5
+  copy_ngram: 8           # overlap = share of the original's 8-word sequences kept in the output;
+  copy_share: 0.8         #   provisional: from 0.8 on an output counts as a copy
+  examples_seed: 0        # which examples --show prints
+
+filters:                  # `biber-drift paraphrase tag`; frozen 2026-11-05 from the main run's check, before
+                          # any comparison between years
+  drop: [missing, cut_off, refusal, think, template, loop]   # not paraphrases: left out (<= 0.5% per model)
+  clean: [opener, closer, quotes, markdown]                  # boilerplate stripped; the text stays
+  # short, long and copy stay in: they are amounts of change, the thing measured
+  window_words: 400       # cut like the originals: first sentence end after 400 words, never past 440 ...
+  window_cap: 440
+  min_words: 0            # ... but no 400-word minimum: it would keep 6-54% of the outputs, unevenly by year
+
+tagging:                  # originals and cleaned outputs, tagged in the same environment
+  spacy_model: en_core_web_trf
+  batch_size: 100
+  gpu: auto
+  mattr_window: 100       # f_43 = moving-average type-token ratio over 100 tokens, per text (paraphrases are
+                          # often shorter; pybiber's own version depends on the batch)
+
+analysis:                 # `biber-drift paraphrase analyze` (laptop): how much each model changes the texts,
+                          # and whether that drops after the break. Method points decided 2026-11-06:
+                          # - features on the run's reference_scaler.csv, but f_43 (MATTR) on the mean / sd
+                          #   of the re-tagged originals of its corpus;
+                          # - texts whose paraphrase has no f_43 (< 100 tokens) are out of the Biber and
+                          #   Dimension distances and in the distance without f_43;
+                          # - Dimensions 1-6 on that same scaler (not Biber's 1988 norms: f_43 is MATTR).
+  series:                 # periods and break per sample group
+    acl: {time_unit: year, break_at: 2023}
+    lotr: {time_unit: quarter, date_column: chapter_date, break_at: 2023Q1}   # HAC: 4 lags (one year)
+    hobbit: {time_unit: quarter, date_column: chapter_date, break_at: 2023Q1}
+  exclude_flags: [short, long, copy]   # sensitivity check: everything again without these outputs
+  length_covariate: length_ratio       # log(output words / original words) in the regressions, and without
+  bootstrap_resamples: 1000
+  confidence: 95
+  p_adjust: fdr_bh
+  mmd:                    # cohort MMD^2 per year, originals vs paraphrases, on the run's sigma (2026-11-06)
+    sizes:                # one fixed sample per group-year, the same texts for every model, from the texts
+      acl: 250            #   every model kept with complete features: ACL 2013 has 252 of them;
+      lotr: 275           #   AO3 300 was planned, but LotR 2009 has only 278 (Llama 2 lacks f_43 for 333 texts)
+      hobbit: 275
+    subsample_draws: 1000 # the most representative of 1000 draws, as in the pipeline
+    permutations: 1000    # null: original and paraphrase swap places within random pairs
+  seed: 0
+
+models:                  # order matters: a Slurm array index picks the model at that position
+  llama-3.1-8b:           # 0
+    repo: meta-llama/Llama-3.1-8B-Instruct      # gated: accept the licence on Hugging Face
+    family: Llama
+  qwen3-8b:               # 1
+    repo: Qwen/Qwen3-8B
+    family: Qwen
+    role: separate        # reported on its own, not counted among the families: it copies most texts
+    chat_template_kwargs: {enable_thinking: false}
+  mistral-nemo-12b:       # 2
+    repo: mistralai/Mistral-Nemo-Instruct-2407
+    family: Mistral
+    engine: {tokenizer_mode: hf}                # the Hugging Face chat template, as for the other models
+  gemma-3-12b:            # 3
+    repo: google/gemma-3-12b-it                 # gated: accept the licence on Hugging Face
+    family: Gemma
+    engine: {limit_mm_per_prompt: {image: 0}}   # text only: no memory for the vision encoder
+  gpt-oss-20b:            # 4
+    repo: openai/gpt-oss-20b
+    family: gpt-oss
+    chat_template_kwargs: {reasoning_effort: low}
+    current_date: "2026-11-05"                  # its template writes today's date; fixed, as in smoke test 4
+    answer_channel: final                      # keep the answer, drop the reasoning
+    stop_tokens: ["<|return|>", "<|call|>"]
+    max_new_tokens: 2000                        # room for the reasoning before the answer
+  olmo-2-13b:             # 5
+    repo: allenai/OLMo-2-1124-13B-Instruct
+    family: OLMo
+  llama-2-13b:            # 6 -- check: pretraining data ends in Sept 2022, before ChatGPT
+    repo: meta-llama/Llama-2-13b-chat-hf       # gated: accept the licence on Hugging Face
+    family: Llama 2
+    role: check
+  # Larger models (optional second tier), one 80 GB GPU each unless noted:
+  # llama-3.3-70b: {repo: meta-llama/Llama-3.3-70B-Instruct, family: Llama, tensor_parallel_size: 2}
+  # qwen3-32b: {repo: Qwen/Qwen3-32B, family: Qwen, chat_template_kwargs: {enable_thinking: false}}
+  # mistral-small-24b: {repo: mistralai/Mistral-Small-24B-Instruct-2501, family: Mistral, engine: {tokenizer_mode: hf}}
+  # gemma-3-27b: {repo: google/gemma-3-27b-it, family: Gemma, engine: {limit_mm_per_prompt: {image: 0}}}
+  # gpt-oss-120b: {repo: openai/gpt-oss-120b, family: gpt-oss, chat_template_kwargs: {reasoning_effort: low},
+  #                answer_channel: final, stop_tokens: ["<|return|>", "<|call|>"], max_new_tokens: 2000}
+  # olmo-2-32b: {repo: allenai/OLMo-2-0325-32B-Instruct, family: OLMo}

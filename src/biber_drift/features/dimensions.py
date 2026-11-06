@@ -143,9 +143,12 @@ class BiberDimensionScorer:
         else:
             ref = values if reference is None else values.loc[reference]
             z = (values - ref.mean()) / ref.std().replace(0, 1.0)
+        return self.project(z)
 
+    def project(self, z: pd.DataFrame) -> pd.DataFrame:
+        """Dimension scores of features that are already z-scores (e.g. on a run's own scaler)."""
         scores = {}
         for dimension, weights in self.loadings.items():
             names = list(weights)
             scores[dimension] = z[names].to_numpy() @ np.array([weights[n] for n in names])
-        return pd.DataFrame(scores, index=features.index)
+        return pd.DataFrame(scores, index=z.index)

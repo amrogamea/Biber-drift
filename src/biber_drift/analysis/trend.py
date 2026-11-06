@@ -1,6 +1,6 @@
 """Interrupted time series on per-period means.
 
-Every series is one number per period (a year, or a month for dated documents): the mean of a
+Every series is one number per period (a year, or a month or quarter for dated documents): the mean of a
 standardised feature, of a Biber dimension score, or the total variance of the standardised
 features. Around a fixed break (e.g. ChatGPT, Nov 2022), with ``t`` = time since the break and
 ``post`` = 1 from the break on, ``y = b0 + b1 t + b2 post (+ b3 post t)``. ``b2`` is the jump at the
@@ -10,12 +10,13 @@ pre-break trend continued, over the post-break periods (``b2 + b3 * mean post-br
 for "how much did it change", counting jumps and bends alike. Placebo breaks inside the pre-break
 period, fitted on pre-break data only, show how often a jump as large appears where nothing happened.
 
-Periods are equally weighted (one observation each); with monthly data the standard errors are
-Newey-West (HAC) to allow for autocorrelation.
+Periods are equally weighted (one observation each); with monthly or quarterly data the standard
+errors are Newey-West (HAC) to allow for autocorrelation.
 """
 
 from __future__ import annotations
 
+import re
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -27,12 +28,19 @@ import statsmodels.api as sm
 from .multiple_testing import adjust_pvalues
 
 _EPS = 1e-9
+_QUARTER = re.compile(r"^(\d{4})-?[Qq]([1-4])$")
 
 
 def break_time(break_at, time_unit: str) -> float:
-    """The first post-break period in (fractional) years: 2023 -> 2023.0, '2022-12' -> 2022.917."""
+    """The first post-break period in (fractional) years: 2023 -> 2023.0, '2022-12' -> 2022.917,
+    '2023Q1' -> 2023.0."""
     if time_unit == "year":
         return float(int(break_at))
+    if time_unit == "quarter":
+        match = _QUARTER.match(str(break_at).strip())
+        if not match:
+            raise ValueError(f"A quarterly break looks like '2023Q1', got {break_at!r}")
+        return int(match.group(1)) + (int(match.group(2)) - 1) / 4
     year, _, month = str(break_at).partition("-")
     return int(year) + (int(month or 1) - 1) / 12
 
@@ -44,6 +52,10 @@ def document_times(documents: pd.DataFrame, time_unit: str, date_column: str | N
         years = documents[year_column].astype(int)
         return pd.DataFrame({"period": years.astype(str), "time": years.astype(float)}, index=documents.index)
     dates = pd.to_datetime(documents[date_column], errors="coerce").dropna()
+    if time_unit == "quarter":
+        quarters = dates.dt.quarter
+        return pd.DataFrame({"period": dates.dt.year.astype(str) + "Q" + quarters.astype(str),
+                             "time": dates.dt.year + (quarters - 1) / 4}, index=dates.index)
     return pd.DataFrame({"period": dates.dt.strftime("%Y-%m"),
                          "time": dates.dt.year + (dates.dt.month - 1) / 12}, index=dates.index)
 

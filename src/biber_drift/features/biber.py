@@ -5,6 +5,7 @@ from __future__ import annotations
 import contextlib
 import io
 import logging
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -39,6 +40,44 @@ def _quiet_pybiber() -> None:
             logging.getLogger(name).setLevel(logging.WARNING)
 
 
+def moving_type_token_ratio(types: list[str], window: int) -> float:
+    """Mean share of distinct types over every full ``window`` of consecutive tokens (MATTR).
+
+    NaN for a text shorter than ``window``: there is no full window (pybiber returns 0 there).
+    """
+    if len(types) < window:
+        return float("nan")
+    counts = Counter(types[:window])
+    distinct = [len(counts)]
+    for leaving, entering in zip(types, types[window:]):
+        counts[leaving] -= 1
+        if not counts[leaving]:
+            del counts[leaving]
+        counts[entering] += 1
+        distinct.append(len(counts))
+    return float(np.mean(distinct)) / window
+
+
+def mattr_by_document(tokens, window: int):
+    """``doc_id`` and ``f_43_type_token`` as pybiber's MATTR, but computed per document.
+
+    Types as in pybiber: lower-cased alphabetic tokens joined with their tag. pybiber's own MATTR
+    (``force_ttr=False``) falls back to the plain ratio for a whole batch as soon as one of its
+    documents has 200 alphabetic tokens or fewer, so a document's value would depend on its batch.
+    """
+    import polars as pl
+
+    types = (tokens.filter(pl.col("token").str.to_lowercase().str.contains("^[a-z]+$"))
+             .select("doc_id", pl.concat_str([pl.col("token").str.to_lowercase(), pl.col("tag").str.to_lowercase()],
+                                             separator="_").alias("type"))
+             .group_by("doc_id", maintain_order=True).agg(pl.col("type")))
+    ratios = {doc_id: moving_type_token_ratio(list(values), window)
+              for doc_id, values in zip(types["doc_id"].to_list(), types["type"].to_list())}
+    doc_ids = tokens["doc_id"].unique(maintain_order=True).to_list()   # no alphabetic token: NaN
+    return pl.DataFrame({"doc_id": doc_ids, "f_43_type_token": [ratios.get(d, float("nan")) for d in doc_ids]},
+                        schema={"doc_id": pl.String, "f_43_type_token": pl.Float64})
+
+
 class BiberTagger:
     """Tags texts with the 67 pybiber features, resumably.
 
@@ -49,16 +88,22 @@ class BiberTagger:
     """
 
     def __init__(self, spacy_model: str = "en_core_web_sm", batch_size: int = 100,
-                 n_process: int = 1, cache_dir: str | Path = ".cache", gpu: str = "auto") -> None:
+                 n_process: int = 1, cache_dir: str | Path = ".cache", gpu: str = "auto",
+                 mattr_window: int | None = None) -> None:
+        """``mattr_window``: if set, ``f_43_type_token`` is the moving-average type-token ratio over
+        windows of that many alphabetic tokens, per document (:func:`mattr_by_document`); by default
+        it is the plain ratio over the whole text, which depends on its length."""
         self.spacy_model = spacy_model
         self.batch_size = batch_size
         self.n_process = n_process
         self.cache_dir = Path(cache_dir)
         self.gpu = gpu
+        self.mattr_window = mattr_window
 
     @property
     def cache_path(self) -> Path:
-        return self.cache_dir / f"biber_{self.spacy_model}.ndjson"
+        suffix = f"_mattr{self.mattr_window}" if self.mattr_window else ""
+        return self.cache_dir / f"biber_{self.spacy_model}{suffix}.ndjson"
 
     def tag(self, texts: pd.Series) -> pd.DataFrame:
         """Return a frame indexed by ``doc_id`` with one column per Biber feature."""
@@ -95,6 +140,10 @@ class BiberTagger:
                         batch_size=self.batch_size, show_progress=False,
                     )
                     tagged = pb.biber(tokens, force_ttr=True)
+                if self.mattr_window:
+                    tagged = (tagged.drop("f_43_type_token")
+                              .join(mattr_by_document(tokens, self.mattr_window), on="doc_id", how="left")
+                              .select(tagged.columns))
                 self._check(tagged)
                 with open(self.cache_path, "a", encoding="utf-8") as handle:
                     handle.write(tagged.write_ndjson())

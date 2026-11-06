@@ -25,3 +25,6 @@ dist/
 .idea/
 .DS_Store
 HANDOFF.md
+
+
+logs/
